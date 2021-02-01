@@ -1,0 +1,13 @@
+Members:
+Earl Jeffrey E. Capistrano
+Kristen Ann Raphaelle D. Espiritu
+Marybelle Tandoc
+
+How to run:
+- Open the project using an IDE.
+- Find the main java file named "controller.editor.java"
+- Press "Run" in the IDE to launch the program
+- Copy Paste the code into the text controller.editor.
+- To run the program, click "Process" and then "Run". The error messages will now show.
+
+Entry Class File: controller.editor.java
