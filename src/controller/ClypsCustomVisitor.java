@@ -2,6 +2,7 @@ package controller;
 
 import ErrorCheckers.TypeChecking;
 import antlr.ClypsBaseVisitor;
+import antlr.ClypsLexer;
 import antlr.ClypsParser;
 import com.udojava.evalex.Expression;
 import commands.ForCommand;
@@ -9,6 +10,7 @@ import commands.IFCommand;
 import commands.PrintCommand;
 import execution.ExecutionManager;
 import items.ClypsValue;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import sun.awt.Symbol;
 
 import java.util.ArrayList;
@@ -282,8 +284,20 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
     @Override
     public ClypsValue visitIfThenStatement(ClypsParser.IfThenStatementContext ctx) {
 
+        IFCommand ifCommand = new IFCommand(ctx.conditionalExpression());
 
-        return visitChildren(ctx);
+
+        StatementController statementControl = StatementController.getInstance();
+        StatementController.getInstance().openConditionalCommand(ifCommand);
+
+
+        visitChildren(ctx);
+
+        StatementController.getInstance().compileControlledCommand();
+
+        statementControl.reportExitPositiveRule();
+
+        return null;
     }
 
     @Override
@@ -326,7 +340,6 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
 
         StatementController statementControl = StatementController.getInstance();
 
-        System.out.println(statementControl.getActiveControlledCommand());
 
         if(statementControl.isInConditionalCommand()) {
             System.out.println("PRINT IN CONDITIONAL");
@@ -376,6 +389,36 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
         System.out.println("EXIT FOR COMMAND");
 
         return visitChildren(ctx);
+    }
+
+    @Override
+    public ClypsValue visitIfThenElseStatement(ClypsParser.IfThenElseStatementContext ctx) {
+
+        IFCommand ifCommand = new IFCommand(ctx.conditionalExpression());
+
+
+
+        StatementController.getInstance().openConditionalCommand(ifCommand);
+        visitChildren(ctx.block(0));
+
+        StatementController.getInstance().reportExitPositiveRule();
+
+        if(isELSEStatement(ctx)){
+
+            System.out.println("CHECKING IF POSITIVE: " + StatementController.getInstance().isInPositiveRule());
+            visitChildren(ctx.block(1));
+
+
+
+
+        }
+        StatementController.getInstance().compileControlledCommand();
+
+
+
+
+
+        return null;
     }
 
     public String testingExpression(String value, List<Integer> index, int line) {
@@ -447,6 +490,14 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
 
 
         return value;
+    }
+    public static boolean isELSEStatement(ClypsParser.IfThenElseStatementContext ctx) {
+
+        List<TerminalNode> tokenList = ctx.getTokens(ClypsLexer.ELSE);
+        System.out.println("ELSE STATEMENT? " + tokenList.size());
+
+
+        return (tokenList.size() != 0);
     }
 
 }

@@ -307,7 +307,7 @@ ifThenStatement
 	;
 
 ifThenElseStatement
-	:	'if' '(' conditionalExpression ')' block 'else' block
+	:	'if' '(' conditionalExpression ')' block ('else' block)?
 	;
 
 whileStatement

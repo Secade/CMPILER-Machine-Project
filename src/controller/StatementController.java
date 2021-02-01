@@ -72,6 +72,7 @@ public class StatementController {
                 conditionalCommand.addPositiveCommand(command);
             }
             else {
+                System.out.println("Negative command was added");
                 conditionalCommand.addNegativeCommand(command);
             }
 
@@ -117,11 +118,13 @@ public class StatementController {
                     controlledCommand.addCommand(childCommand);
                 } else if (parentCommand instanceof IFCommand) {
                     IConditionalCommand controlledCommand = (IConditionalCommand) parentCommand;
-
                     if(isInPositiveRule())
                         controlledCommand.addPositiveCommand(childCommand);
-                    else
+                    else{
+                        System.out.println("ADDING A NEGATIVE");
                         controlledCommand.addNegativeCommand(childCommand);
+                    }
+
                 }
             }
         }

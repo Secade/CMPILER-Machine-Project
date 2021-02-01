@@ -41,7 +41,6 @@ public class CommEval implements ICommand, ParseTreeListener {
         isNumber = !this.newExp.contains("\"") && this.newExp.contains("\'");
 
         if(!isNumber){
-            System.out.println("PING");
             // for true or false expressions
             if(this.newExp.contains("==") || this.newExp.contains("!=")){
 
