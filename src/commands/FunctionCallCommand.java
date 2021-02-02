@@ -36,6 +36,7 @@ public class FunctionCallCommand implements ICommand{
 
                 if (ClypsValue.checkValueType(ClypsValue.attemptTypeCast(ctx.argumentList().assignmentExpression().get(i).assignment().getText(),clypsFunction.getParameterAt(i).getPrimitiveType()),clypsFunction.getParameterAt(i).getPrimitiveType())){
                     this.clypsFunction.mapParameterByValueAt(ClypsCustomVisitor.testingExpression(ctx.argumentList().assignmentExpression().get(i).assignment().getText(),dummy,ctx.start.getLine()),i);
+                    //this.clypsFunction.ge
                 }else {
                     editor.addCustomError("PARAMETER TYPE MISMATCH", ctx.start.getLine());
                 }
@@ -48,9 +49,12 @@ public class FunctionCallCommand implements ICommand{
 
     @Override
     public void execute() {
+        Scope scope = SymbolTableManager.getInstance().getActiveLocalScope();
         this.clypsFunction.execute();
+        SymbolTableManager.getInstance().setActiveScope(scope);
         System.out.println("FUNCTION RETURN VALUE: ");
-        System.out.println(this.clypsFunction.getReturnValue().getValue());
+        //System.out.println(this.clypsFunction.getReturnValue().getValue());
+
 
     }
 }

@@ -111,6 +111,16 @@ public class ClypsFunction {
 
         ClypsValue baracoValue = this.getParameterAt(index);
         baracoValue.setValue(value);
+        System.out.println("TRYING TO ADD PARAM TO SCOP ----");
+        System.out.println(baracoValue.getPrimitiveType().toString());
+        System.out.println(this.getParametername(index));
+        System.out.println(value);
+        SymbolTableManager.getInstance().getActiveLocalScope().addInitializedVariableFromKeywords(baracoValue.getPrimitiveType().toString(),this.getParametername(index),value);
+        this.getParentScope().addInitializedVariableFromKeywords(baracoValue.getPrimitiveType().toString(),this.getParametername(index),value);
+        System.out.println("PRINT ALL VARS");
+        SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
+        System.out.println("PRINT ALL VARS");
+
     }
 
     public ClypsValue getParameterAt(int index) {
@@ -127,12 +137,29 @@ public class ClypsFunction {
         return null;
     }
 
+    public String getParametername(int index) {
+        int i = 0;
+
+        for(String string : this.parameters.keySet()) {
+            if(i == index) {
+                return string;
+            }
+
+            i++;
+        }
+
+        return null;
+    }
+
     public void execute() {
-        Scope scope = SymbolTableManager.getInstance().getActiveLocalScope();
+
 
         Scope funcScope = new Scope();
         SymbolTableManager.getInstance().setActiveScope(funcScope);
         ExecutionThread executionThread = ExecutionManager.getInstance().getExecutionThread();
+        this.setParentScope(funcScope);
+
+        ExecutionManager.getInstance().openFunctionExecution(this);
 
         try {
             for(ICommand command : this.commandList) {
@@ -153,9 +180,13 @@ public class ClypsFunction {
         } catch(InterruptedException e) {
         }
 
-        SymbolTableManager.getInstance().setActiveScope(scope);
+        ExecutionManager.getInstance().closeFunctionExecution();
 
         //LocalVarTracker.resetLocalVars(localVars);
+    }
+
+    public int getParameterValueSize() {
+        return this.parameters.size();
     }
 
     public void printParams() {

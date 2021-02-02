@@ -103,6 +103,14 @@ public class Scope {
         clypsValue.setType(type);
     }
 
+    public void addParamsToScope(String primitiveTypeString, String identifierString, String valueString) {
+        ClypsValue.PrimitiveType type=ClypsValue.translateType(primitiveTypeString);
+        this.addEmptyVariableFromKeywords(primitiveTypeString, identifierString);
+        ClypsValue clypsValue = this.localVariables.get(identifierString);
+        clypsValue.setValue(valueString);
+        clypsValue.setType(type);
+    }
+
     public void addArray(String primitiveTypeString, String identifierString, String size) {
         ClypsValue.PrimitiveType type=ClypsValue.translateType(primitiveTypeString);
         ClypsArray array = new ClypsArray(type);
