@@ -6,7 +6,6 @@ import antlr.ClypsParser;
 import com.udojava.evalex.Expression;
 import commands.*;
 import execution.ExecutionManager;
-import items.ClypsValue;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import sun.awt.Symbol;
 import execution.ExecutionThread;

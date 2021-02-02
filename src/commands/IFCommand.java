@@ -3,8 +3,6 @@ package commands;
 import java.util.*;
 
 import antlr.ClypsParser;
-import controller.IConditionalCommand;
-import controller.IControlledCommand;
 import execution.ExecutionManager;
 import org.antlr.v4.runtime.Parser;
 
@@ -112,6 +110,11 @@ public class IFCommand implements ICommand, IConditionalCommand {
 
     public List<ICommand> getNegCommands() {
         return negCommands;
+    }
+
+    public void resetReturnFlag() {
+        returned = false;
+    }
 
   
 }
