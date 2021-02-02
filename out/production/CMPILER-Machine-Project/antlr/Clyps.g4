@@ -152,7 +152,7 @@ result
 	;
 
 methodDeclarator
-	:	Identifier '(' formalParameterList? ')' dims?
+	:	Identifier '(' formalParameters? ')' dims?
 	;
 
 formalParameterList
@@ -163,7 +163,7 @@ formalParameterList
 
 formalParameters
 	:	formalParameter (',' formalParameter)*
-	|	receiverParameter (',' formalParameter)*
+	//|	receiverParameter (',' formalParameter)*
 	;
 
 formalParameter
@@ -248,14 +248,23 @@ statement
 	|   scanStatement
     |	doStatement
     |	returnStatement
-    |	postIncrementExpression ';'
-    |	postDecrementExpression ';'
+    |	incDecStatement
     |	methodInvocation ';'
 	;
 
+incDecStatement
+    :   postIncrementExpression ';'
+    |	postDecrementExpression ';'
+    ;
+
 printStatement
-    :   'print' '(' printBlock ')' ';'
-    |   'print' '(' (Identifier|StringLiteral)* (IntegerLiteral|'!'|'@'|'#'|'$'|'%'|'^'|'&'|'*'|':'|'.')* ')' {notifyErrorListeners("Missing double quotes");} ';'
+    :   printHead '(' printBlock ')' ';'
+    |   printHead '(' (Identifier|StringLiteral)* (IntegerLiteral|'!'|'@'|'#'|'$'|'%'|'^'|'&'|'*'|':'|'.')* ')' {notifyErrorListeners("Missing double quotes");} ';'
+    ;
+
+printHead
+    :   'print'
+    |   'println'
     ;
 
 printBlock
@@ -266,6 +275,7 @@ printBlock
 printExtra
     :   Identifier ('('expression')')?
     |   StringLiteral
+    |   arrayCall
     |   Identifier '+' {notifyErrorListeners("Too Many '+' Symbols");}
     |   StringLiteral '+' {notifyErrorListeners("Too Many '+' Symbols");}
     |   IntegerLiteral '+' {notifyErrorListeners("Too Many '+' Symbols");}

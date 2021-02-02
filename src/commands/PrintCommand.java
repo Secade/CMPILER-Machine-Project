@@ -1,11 +1,17 @@
 package commands;
 
 import antlr.ClypsParser;
+import controller.ClypsCustomVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PrintCommand implements ICommand, ParseTreeListener {
 
@@ -27,17 +33,34 @@ public class PrintCommand implements ICommand, ParseTreeListener {
     @Override
     public void execute() {
 
-        //ParseTreeWalker treeWalk = new ParseTreeWalker();
-        //treeWalk.walk(this, this.expCtx);
+        //System.out.println(expCtx.printBlock().getText());
 
-       // printStatement += "\n";
-        System.out.println("PRINTING COMMAND");
-        System.out.println(expCtx.printBlock().getText());
+        String value="";
 
-        //System.out.println(this.printStatement);
+        if (expCtx.printBlock().printExtra().arrayCall()!=null){
+            List<Integer> matchList = new ArrayList<Integer>();
+            Pattern regex = Pattern.compile("\\[(.*?)\\]");
+            System.out.println(this.expCtx.printBlock().getText());
+            Matcher regexMatcher = regex.matcher(this.expCtx.printBlock().getText());
 
-       // printStatement = "";
-        //evalExp = false;
+            while (regexMatcher.find()) {//Finds Matching Pattern in String
+                matchList.add(Integer.parseInt(regexMatcher.group(1).trim()));//Fetching Group from String
+            }
+            value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(),matchList,this.expCtx.start.getLine());
+        }else {
+            List<Integer> dummy = null;
+            value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(),dummy,this.expCtx.start.getLine());
+        }
+
+
+        //CAUTION: REPLACES ALL + SIGNS
+        value=value.replaceAll("\"","").replaceAll("\\+","");
+        //System.out.println("ACTUAL PRINT");
+        if (expCtx.printHead().getText().contains("ln"))
+            System.out.println(value);
+        else
+            System.out.print(value);
+
 
     }
 

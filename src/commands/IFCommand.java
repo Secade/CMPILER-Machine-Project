@@ -112,5 +112,6 @@ public class IFCommand implements ICommand, IConditionalCommand {
 
     public List<ICommand> getNegCommands() {
         return negCommands;
-    }
+
+  
 }

@@ -1,7 +1,5 @@
 package controller;
 
-import items.ClypsValue;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -66,11 +64,11 @@ public class Scope {
 
     public ClypsArray searchArray(String identifier){
         if(this.containsVariable(identifier)) {
-            System.out.println("FOUND NAME");
+            //System.out.println("FOUND NAME");
             return this.localArrays.get(identifier);
         }
         else {
-            System.out.println("NO NAME FOUND");
+            //System.out.println("NO NAME FOUND");
             return null;
         }
     }
@@ -170,6 +168,11 @@ public class Scope {
                     System.out.println(entry.getKey() + " " +entry.getValue().getValueAt(i));
             }
         });
+    }
+
+    public void reset(){
+        this.localVariables.clear();
+        this.localArrays.clear();
     }
 
 }

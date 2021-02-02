@@ -98,6 +98,10 @@ public class ExecutionManager{
         this.executionThread.start();
     }
 
+    public ExecutionThread getExecutionThread(){
+        return this.executionThread;
+    }
+
     public void clearAllActions() {
         this.executionList.clear();
     }

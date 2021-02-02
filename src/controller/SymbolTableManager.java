@@ -1,7 +1,5 @@
 package controller;
 
-import items.ClypsValue;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,15 +47,21 @@ public class SymbolTableManager {
         return this.activeScope;
     }
 
+    public void setActiveScope(Scope scope){
+        SymbolTableManager.getInstance().activeScope=scope;
+    }
+
     public void closeLocalScope() {
         if(this.activeScope.getParent() != null && this.activeScope.getParent() instanceof Scope) {
+
             this.activeScope = (Scope) this.activeScope.getParent();
+            this.activeScope.reset();
         }
         else if(this.activeScope.getParent() == null) {
-            System.out.println(": " + "Cannot change parent. Current active local scope no longer has a parent.");
+            //System.out.println(": " + "Cannot change parent. Current active local scope no longer has a parent.");
         }
         else {
-            System.out.println(": " + "Cannot change parent. Current active local scope's parent is now a class scope.");
+            //System.out.println(": " + "Cannot change parent. Current active local scope's parent is now a class scope.");
         }
     }
 
@@ -91,7 +95,7 @@ public class SymbolTableManager {
             }
         }
 
-        System.out.println(": " + identifier + " not found in any local scope!");
+        //System.out.println(": " + identifier + " not found in any local scope!");
         return null;
     }
 

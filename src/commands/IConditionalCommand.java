@@ -1,6 +1,4 @@
-package controller;
-
-import commands.ICommand;
+package commands;
 
 public interface IConditionalCommand extends ICommand {
     public abstract IControlledCommand.ControlTypeEnum getControlType();

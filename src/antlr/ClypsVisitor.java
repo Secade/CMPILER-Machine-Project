@@ -281,11 +281,23 @@ public interface ClypsVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(ClypsParser.StatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ClypsParser#incDecStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIncDecStatement(ClypsParser.IncDecStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ClypsParser#printStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitPrintStatement(ClypsParser.PrintStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ClypsParser#printHead}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrintHead(ClypsParser.PrintHeadContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ClypsParser#printBlock}.
 	 * @param ctx the parse tree

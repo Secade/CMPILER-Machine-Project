@@ -458,6 +458,16 @@ public interface ClypsListener extends ParseTreeListener {
 	 */
 	void exitStatement(ClypsParser.StatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ClypsParser#incDecStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterIncDecStatement(ClypsParser.IncDecStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ClypsParser#incDecStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitIncDecStatement(ClypsParser.IncDecStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ClypsParser#printStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -467,6 +477,16 @@ public interface ClypsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPrintStatement(ClypsParser.PrintStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ClypsParser#printHead}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrintHead(ClypsParser.PrintHeadContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ClypsParser#printHead}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrintHead(ClypsParser.PrintHeadContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ClypsParser#printBlock}.
 	 * @param ctx the parse tree

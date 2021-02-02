@@ -1,9 +1,6 @@
 package controller;
 
-import commands.ForCommand;
-import commands.ICommand;
-import commands.IFCommand;
-import commands.WhileCommand;
+import commands.*;
 import execution.ExecutionManager;
 
 import java.util.Stack;

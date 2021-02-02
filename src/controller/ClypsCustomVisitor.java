@@ -1,20 +1,17 @@
 package controller;
 
-import ErrorCheckers.TypeChecking;
 import antlr.ClypsBaseVisitor;
 import antlr.ClypsLexer;
 import antlr.ClypsParser;
 import com.udojava.evalex.Expression;
-import commands.ForCommand;
-import commands.IFCommand;
-import commands.PrintCommand;
+import commands.*;
 import execution.ExecutionManager;
 import items.ClypsValue;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import sun.awt.Symbol;
+import execution.ExecutionThread;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -122,6 +119,7 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
         if (ctx.variableDeclarator().variableDeclaratorId().getText().contains("[")) {
             List<Integer> dummy = null;
             System.out.println(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText());
+            System.out.println(ctx.variableDeclarator().variableInitializer().getText());
             int index = Integer.parseInt(testingExpression(ctx.variableDeclarator().variableDeclaratorId().expression().getText(), dummy, ctx.start.getLine()));
             String value = testingExpression(ctx.variableDeclarator().variableInitializer().getText(), dummy, ctx.start.getLine());
             if (SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()) != null) {
@@ -313,21 +311,124 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
     }
 
     @Override
+    public ClypsValue visitMethodInvocation(ClypsParser.MethodInvocationContext ctx) {
+        System.out.println("ENTER FUNCTION INVOCATION");
+
+        FunctionCallCommand functionCallCommand = new FunctionCallCommand(ctx);
+
+        StatementController statementControl = StatementController.getInstance();
+
+        if (statementControl.isInConditionalCommand()) {
+            IConditionalCommand conditionalCommand = (IConditionalCommand) statementControl.getActiveControlledCommand();
+
+            if (statementControl.isInPositiveRule()) {
+                conditionalCommand.addPositiveCommand(functionCallCommand);
+            } else {
+                conditionalCommand.addNegativeCommand(functionCallCommand);
+            }
+        } else if (statementControl.isInControlledCommand()) {
+            IControlledCommand controlledCommand = (IControlledCommand) statementControl.getActiveControlledCommand();
+            controlledCommand.addCommand(functionCallCommand);
+        } else {
+            ExecutionManager.getInstance().addCommand(functionCallCommand);
+        }
+
+
+
+        return null;
+    }
+
+    @Override
     public ClypsValue visitMethodDeclaration(ClypsParser.MethodDeclarationContext ctx) {
         System.out.println("ENTER FUNCTION");
         System.out.println(ctx.getText());
         System.out.println(ctx.methodHeader().result().getText());
         System.out.println(ctx.methodHeader().methodDeclarator().Identifier().getText());
+        Scope temp = SymbolTableManager.getInstance().getActiveLocalScope();
 
         if (SymbolTableManager.getInstance().functionLookup(ctx.methodHeader().methodDeclarator().Identifier().getText()) == null) {
             ClypsFunction function = new ClypsFunction();
             SymbolTableManager.getInstance().addFunction(ctx.methodHeader().methodDeclarator().Identifier().getText(), function);
+
+            Scope scope = new Scope();
+            function.setParentScope(scope);
+            function.setReturnValue(function.identifyFunctionType(ctx.methodHeader().result().getText()));
+            if (ctx.methodHeader().methodDeclarator().formalParameters()!=null){
+                //String[] params = ctx.methodHeader().methodDeclarator().formalParameters().formalParameter();
+                for (int i=0;i<ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().size();i++){
+                    System.out.println(ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().get(i).unannType().getText());
+                    System.out.println(ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().get(i).variableDeclaratorId().Identifier().getText());
+                    ClypsValue value = new ClypsValue();
+                    value.setValue("-1");
+                    //System.out.println("TYPE");
+                    //System.out.println(ClypsValue.translateType(ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().get(i).unannType().getText()));
+                    value.setType(ClypsValue.translateType(ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().get(i).unannType().getText()));
+                    System.out.println(value.getValue());
+                    System.out.println(value.getPrimitiveType());
+                    function.addParameter(ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().get(i).variableDeclaratorId().Identifier().getText(),value);
+
+                }
+            }else {
+                System.out.println("EMPTY PARAMS");
+
+            }
+
+            ExecutionManager.getInstance().openFunctionExecution(function);
+
+            System.out.println("PRINT PARAMS");
+            function.printParams();
+            System.out.println("PRINT PARAMS");
+
+            visitChildren(ctx);
         } else {
             editor.addCustomError("DUPLICATE FUNCTION DETECTED", ctx.start.getLine());
         }
 
         System.out.println("PRINT ALL FUNCTION");
         SymbolTableManager.getInstance().printAllFunctions();
+
+        if (!ExecutionManager.getInstance().getCurrentFunction().isReturned&&ExecutionManager.getInstance().getCurrentFunction().getReturnType()!= ClypsFunction.FunctionType.VOID_TYPE){
+            editor.addCustomError("MISSING RETURN STATEMENT", ctx.stop.getLine());
+        }
+
+        ExecutionManager.getInstance().closeFunctionExecution();
+
+
+
+        return null;
+    }
+
+    @Override
+    public ClypsValue visitReturnStatement(ClypsParser.ReturnStatementContext ctx) {
+
+        if (ExecutionManager.getInstance().isInFunctionExecution()){
+            ReturnCommand returnCommand = new ReturnCommand(ctx, ExecutionManager.getInstance().getCurrentFunction());
+            StatementController statementControl = StatementController.getInstance();
+
+            if(statementControl.isInConditionalCommand()) {
+                IConditionalCommand conditionalCommand = (IConditionalCommand) statementControl.getActiveControlledCommand();
+
+                if(statementControl.isInPositiveRule()) {
+                    conditionalCommand.addPositiveCommand(returnCommand);
+                }
+                else {
+                    String functionName = ExecutionManager.getInstance().getCurrentFunction().getMethodName();
+                    ExecutionManager.getInstance().getCurrentFunction().setValidReturns(true);
+                    conditionalCommand.addNegativeCommand(returnCommand);
+                }
+            }
+
+            else if(statementControl.isInControlledCommand()) {
+                IControlledCommand controlledCommand = (IControlledCommand) statementControl.getActiveControlledCommand();
+                controlledCommand.addCommand(returnCommand);
+            }else {
+                ExecutionManager.getInstance().getCurrentFunction().setValidReturns(true);
+
+                ExecutionManager.getInstance().addCommand(returnCommand);
+            }
+        }else {
+            editor.addCustomError("INVALID USE OF RETURN STATEMENT", ctx.start.getLine());
+        }
 
         return visitChildren(ctx);
     }
@@ -340,18 +441,35 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
 
         StatementController statementControl = StatementController.getInstance();
 
+        //System.out.println(statementControl.getActiveControlledCommand());
 
-        if(statementControl.isInConditionalCommand()) {
+        String value="";
+
+        if (ctx.printBlock().printExtra().arrayCall()!=null){
+            List<Integer> matchList = new ArrayList<Integer>();
+            Pattern regex = Pattern.compile("\\[(.*?)\\]");
+            System.out.println(ctx.printBlock().getText());
+            Matcher regexMatcher = regex.matcher(ctx.printBlock().getText());
+
+            while (regexMatcher.find()) {//Finds Matching Pattern in String
+                matchList.add(Integer.parseInt(regexMatcher.group(1).trim()));//Fetching Group from String
+            }
+            value = ClypsCustomVisitor.testingExpression(ctx.printBlock().getText(),matchList,ctx.start.getLine());
+        }else {
+            List<Integer> dummy = null;
+            value = ClypsCustomVisitor.testingExpression(ctx.printBlock().getText(),dummy,ctx.start.getLine());
+        }
+
+        if (statementControl.isInConditionalCommand()) {
             System.out.println("PRINT IN CONDITIONAL");
             IConditionalCommand conditionalCommand = (IConditionalCommand) statementControl.getActiveControlledCommand();
 
-            if(statementControl.isInPositiveRule()) {
+            if (statementControl.isInPositiveRule()) {
                 conditionalCommand.addPositiveCommand(printCommand);
-            }
-            else {
+            } else {
                 conditionalCommand.addNegativeCommand(printCommand);
             }
-        } else if(statementControl.isInControlledCommand()) {
+        } else if (statementControl.isInControlledCommand()) {
             System.out.println("PRINT IN CONTROLLED");
             IControlledCommand controlledCommand = (IControlledCommand) statementControl.getActiveControlledCommand();
             controlledCommand.addCommand(printCommand);
@@ -367,28 +485,158 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
     public ClypsValue visitScanStatement(ClypsParser.ScanStatementContext ctx) {
 
         //PLACEHOLDER ONLY
-        System.out.println("INPUT: "+editor.getInput());
+        System.out.println("INPUT: " + editor.getInput());
 
 
         return visitChildren(ctx);
     }
 
     @Override
+    public ClypsValue visitIncDecStatement(ClypsParser.IncDecStatementContext ctx) {
+        System.out.println("ENTER INC DEC COMMAND");
+        String name = ctx.getText().replaceAll("\\+", "").replaceAll("-", "").replaceAll(";", "");
+        name = name.replaceAll("\\[.*\\]", "");
+        if (SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
+                SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null ||
+                SymbolTableManager.getInstance().getActiveLocalScope().searchArray(name.replaceAll("\\[.*\\]", "")) != null) {
+            //FIX NULL
+
+            System.out.println(name);
+
+            String check = "";
+            if (ctx.getText().contains("++"))
+                check = "pos";
+            else if (ctx.getText().contains("--"))
+                check = "neg";
+
+            System.out.println("SIII");
+            System.out.println(name);
+
+            IncDecCommand incDecCommand = null;
+
+            if (ctx.getText().contains("[")) {
+                if (SymbolTableManager.getInstance().getActiveLocalScope().searchArray(name).getPrimitiveType() == ClypsValue.PrimitiveType.INT ||
+                        SymbolTableManager.getInstance().getActiveLocalScope().searchArray(name).getPrimitiveType() == ClypsValue.PrimitiveType.DOUBLE ||
+                        SymbolTableManager.getInstance().getActiveLocalScope().searchArray(name).getPrimitiveType() == ClypsValue.PrimitiveType.FLOAT) {
+
+                    incDecCommand = new IncDecCommand(ctx, name, check, SymbolTableManager.getInstance().getActiveLocalScope().searchArray(name).getPrimitiveType());
+                } else {
+                    editor.addCustomError("CAN ONLY INC/DEC A NUMBER", ctx.start.getLine());
+                }
+            } else {
+                //SymbolTableManager.getInstance().getActiveLocalScope().getParent().searchVariableIncludingLocal(name).getPrimitiveType()
+                if (SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope()).getPrimitiveType() == ClypsValue.PrimitiveType.INT ||
+                        SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope()).getPrimitiveType() == ClypsValue.PrimitiveType.DOUBLE ||
+                        SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope()).getPrimitiveType() == ClypsValue.PrimitiveType.FLOAT) {
+                    //SymbolTableManager.getInstance().getActiveLocalScope().getParent().searchVariableIncludingLocal(name).getPrimitiveType()
+                    incDecCommand = new IncDecCommand(ctx, name, check, SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope()).getPrimitiveType());
+                } else {
+                    editor.addCustomError("CAN ONLY INC/DEC A NUMBER", ctx.start.getLine());
+                }
+            }
+            StatementController statementControl = StatementController.getInstance();
+
+            if (incDecCommand != null) {
+                if (statementControl.isInConditionalCommand()) {
+                    System.out.println("PRINT IN CONDITIONAL");
+                    IConditionalCommand conditionalCommand = (IConditionalCommand) statementControl.getActiveControlledCommand();
+
+                    if (statementControl.isInPositiveRule()) {
+                        conditionalCommand.addPositiveCommand(incDecCommand);
+                    } else {
+                        conditionalCommand.addNegativeCommand(incDecCommand);
+                    }
+                } else if (statementControl.isInControlledCommand()) {
+                    System.out.println("PRINT IN CONTROLLED");
+                    IControlledCommand controlledCommand = (IControlledCommand) statementControl.getActiveControlledCommand();
+                    controlledCommand.addCommand(incDecCommand);
+                } else {
+                    System.out.println("PRINT IN OPEN ");
+                    ExecutionManager.getInstance().addCommand(incDecCommand);
+                }
+            }
+
+
+        } else {
+            editor.addCustomError("VARIABLE DOES NOT EXIST", ctx.start.getLine());
+        }
+
+        System.out.println("PRINT ALL VARS");
+        SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
+        System.out.println("PRINT ALL VARS");
+
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public ClypsValue visitWhileStatement(ClypsParser.WhileStatementContext ctx) {
+        System.out.println("ENTER WHILE COMMAND");
+        System.out.println(ctx.conditionalExpression().getText());
+        List<Integer> dummy = null;
+
+        String value = testingExpression(ctx.conditionalExpression().getText(), dummy, ctx.start.getLine());
+        System.out.println(value);
+        if (value.contains("f") && !value.contains("false"))
+            value = value.replaceAll("f", "");
+        if (value.contains("!")) {
+            value = value.replaceAll("!", "not");
+        }
+        boolean test = false;
+        try {
+            test = new Expression(value).isBoolean();
+        } catch (Expression.ExpressionException e) {
+            editor.addCustomError("BOOLEAN STATEMENT REQUIRED", ctx.start.getLine());
+        }
+
+        if (!test && value.contains("true") || value.contains("false"))
+            test = true;
+
+        if (test) {
+            WhileCommand whileCommand = new WhileCommand(ctx);
+            StatementController.getInstance().openControlledCommand(whileCommand);
+
+            visitChildren(ctx);
+
+            StatementController.getInstance().compileControlledCommand();
+        }else {
+            editor.addCustomError("BOOLEAN STATEMENT REQUIRED", ctx.start.getLine());
+        }
+
+
+
+        System.out.println("EXIT WHILE COMMAND");
+
+        return null;
+    }
+
+
+    @Override
     public ClypsValue visitForStatement(ClypsParser.ForStatementContext ctx) {
         System.out.println("ENTER FOR COMMAND");
+        List<Integer> dummy = null;
+        String start = ClypsCustomVisitor.testingExpression(ctx.forInit().variableDeclaratorList().variableDeclarator(0).variableInitializer().getText(), dummy, ctx.start.getLine());
+        String end = ClypsCustomVisitor.testingExpression(ctx.assignmentExpression().getText(), dummy, ctx.start.getLine());
+        int counter = Integer.parseInt(new Expression(start).eval().toPlainString());
+        int stop = Integer.parseInt(new Expression(end).eval().toPlainString());
 
-        ForCommand forCommand = new ForCommand(ctx);
-        StatementController.getInstance().openControlledCommand(forCommand);
-        System.out.println(ctx.block().blockStatements().getChildCount());
+        if ((ctx.forMiddle().getText().contains("up to") && counter > stop) || (ctx.forMiddle().getText().contains("down to") && counter < stop)) {
+            editor.addCustomError("VALUE RANGE IS NOT POSSIBLE", ctx.start.getLine());
+        } else {
+            ForCommand forCommand = new ForCommand(ctx);
+            StatementController.getInstance().openControlledCommand(forCommand);
+            System.out.println(ctx.block().blockStatements().getChildCount());
 
-        visitChildren(ctx);
 
-        StatementController.getInstance().compileControlledCommand();
-        //ExecutionManager.getInstance().addCommand(forCommand);
+            //ExecutionManager.getInstance().addCommand(forCommand);
+            visitChildren(ctx);
+
+            StatementController.getInstance().compileControlledCommand();
+
+        }
 
         System.out.println("EXIT FOR COMMAND");
 
-        return visitChildren(ctx);
+        return null;
     }
 
     @Override
@@ -421,72 +669,87 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
         return null;
     }
 
-    public String testingExpression(String value, List<Integer> index, int line) {
-        System.out.println("START OF TESTING EXPRESSION");
 
+    public static String testingExpression(String value, List<Integer> index, int line) {
+       //System.out.println("START OF TESTING EXPRESSION");
         //String[] test = value.split("[^A-Za-z]+");
         String[] test = value.split("[-+*/\\(\\)&|><=!]+");
         ArrayList<String> vars = new ArrayList<>();
         ArrayList<String> store = new ArrayList<>();
-        System.out.println("------");
+        //System.out.println("------");
         for (int i = 0; i < test.length; i++) {
-            System.out.println(test[i]);
-            if (SymbolTableManager.searchVariableInLocalIterative(test[i], SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
-                    SymbolTableManager.searchVariableInLocalIterative(test[i], SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null ||
-                    SymbolTableManager.getInstance().getActiveLocalScope().searchArray(test[i]) != null) {
-                vars.add(test[i]);
-                System.out.println(test[i]);
+            //System.out.println(test[i]);
+            //SymbolTableManager.searchVariableInLocalIterative(test[i], SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
+            //                    SymbolTableManager.searchVariableInLocalIterative(test[i], SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null ||
+            if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(test[i]) != null ||
+                    SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(test[i]) != null ||
+                    SymbolTableManager.getInstance().getActiveLocalScope().searchArray(test[i].replaceAll("\\[.*\\]", "")) != null) {
+                vars.add(test[i].replaceAll("\\[.*\\]", ""));
+                //System.out.println(test[i].replaceAll("\\[.*\\]", ""));
             } else if (test[i].matches("[A-Za-z]+") && (!test[i].contains("true") && !test[i].contains("false"))) {
-                System.out.println("Hey " + test[i]);
+                //System.out.println("Hey " + test[i]);
+
+                System.out.println("TOLD YOU SO");
                 editor.addCustomError("VARIABLE DOES NOT EXIST", line);
                 break;
             }
         }
 
-        System.out.println("NEW LIST");
-        for (String print : vars) {
-            System.out.println(print);
-        }
+//        System.out.println("NEW LIST");
+//        for (String print : vars) {
+//            System.out.println(print);
+//        }
 
-        System.out.println("START VARS");
+        //System.out.println("START VARS");
         for (int i = 0; i < vars.size(); i++) {
             System.out.println(vars.get(i));
-            System.out.println(index);
-            if (SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
-                    SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null ||
+            //System.out.println(index);
+            //SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
+            //                    SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null ||
+            if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)) != null ||
+                    SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)) != null ||
                     SymbolTableManager.getInstance().getActiveLocalScope().searchArray(vars.get(i)) != null) {
-                System.out.println("VAR FOUND HERE");
+                //System.out.println("VAR FOUND HERE");
                 if (index == null) {
-                    System.out.println("PROCESS REGULAR");
-                    if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)).getValue() == null) {
+                    //System.out.println("PROCESS REGULAR");
+                    System.out.println("PRINT ALL VARS");
+                    SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
+                    System.out.println("PRINT ALL VARS");
+                    if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i))
+                             == null) {
                         editor.addCustomError("INCORRECT ASSIGNMENT", line);
                     } else {
                         store.add(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)).getValue().toString());
 
                     }
                 } else {
-                    System.out.println("PROCESS ARRAY");
+                    //System.out.println("PROCESS ARRAY");
                     store.add(SymbolTableManager.getInstance().getActiveLocalScope().searchArray(vars.get(i))
                             .getValueAt(index.get(i))
                             .getValue().toString());
                 }
+            }else {
+                editor.addCustomError("VAR NOT FOUND", line);
             }
         }
 
-        System.out.println("SHOW STORED");
-        for (String pr : store) {
-            System.out.println(pr);
-        }
+//        System.out.println("SHOW STORED");
+//        for (String pr : store) {
+//            System.out.println(pr);
+//        }
 
         for (int i = 0; i < store.size(); i++) {
-            value = value.replaceAll(vars.get(i), store.get(i));
+            if (store.size() == 1 && !value.contains("\"")) {
+                value = value.replaceAll(vars.get(i), store.get(i));
+            } else
+                value = value.replaceAll("(?<=[+])" + vars.get(i), store.get(i));
             if (value.contains("[")) {
                 value = value.replaceAll("\\[.*?\\]", "");
             }
         }
 
-        System.out.println("NEW CREATED VALUE");
-        System.out.println(value);
+//        System.out.println("NEW CREATED VALUE");
+//        System.out.println(value);
 
 
         return value;

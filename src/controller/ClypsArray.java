@@ -1,7 +1,5 @@
 package controller;
 
-import items.ClypsValue;
-
 import java.util.Locale;
 
 public class ClypsArray {

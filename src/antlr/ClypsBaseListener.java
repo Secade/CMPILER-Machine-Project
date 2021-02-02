@@ -556,6 +556,18 @@ public class ClypsBaseListener implements ClypsListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIncDecStatement(ClypsParser.IncDecStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIncDecStatement(ClypsParser.IncDecStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPrintStatement(ClypsParser.PrintStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -563,6 +575,18 @@ public class ClypsBaseListener implements ClypsListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPrintStatement(ClypsParser.PrintStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPrintHead(ClypsParser.PrintHeadContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrintHead(ClypsParser.PrintHeadContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
