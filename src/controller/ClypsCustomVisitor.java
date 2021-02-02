@@ -1,10 +1,13 @@
 package controller;
 
 import antlr.ClypsBaseVisitor;
+import antlr.ClypsLexer;
 import antlr.ClypsParser;
 import com.udojava.evalex.Expression;
 import commands.*;
 import execution.ExecutionManager;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import sun.awt.Symbol;
 import execution.ExecutionThread;
 
 import java.util.ArrayList;
@@ -368,8 +371,20 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
     @Override
     public ClypsValue visitIfThenStatement(ClypsParser.IfThenStatementContext ctx) {
 
+        IFCommand ifCommand = new IFCommand(ctx.conditionalExpression());
 
-        return visitChildren(ctx);
+
+        StatementController statementControl = StatementController.getInstance();
+        StatementController.getInstance().openConditionalCommand(ifCommand);
+
+
+        visitChildren(ctx);
+
+        StatementController.getInstance().compileControlledCommand();
+
+        statementControl.reportExitPositiveRule();
+
+        return null;
     }
 
     @Override
@@ -721,36 +736,35 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
     }
 
     @Override
-    public ClypsValue visitForInit(ClypsParser.ForInitContext ctx) {
+    public ClypsValue visitIfThenElseStatement(ClypsParser.IfThenElseStatementContext ctx) {
 
-        List<Integer> dummy = null;
-        String type = ctx.unannType().get(0).getText();
-        String name = ctx.variableDeclaratorList().variableDeclarator(0).variableDeclaratorId().getText();
-        //FIX VAR NOT FOUND
-        String value = testingExpression(ctx.variableDeclaratorList().variableDeclarator(0).variableInitializer().getText(), dummy, ctx.start.getLine());
-        System.out.println("ENTER FOR INIT");
-        System.out.println(type);
-        System.out.println(name);
-        System.out.println(value);
+        IFCommand ifCommand = new IFCommand(ctx.conditionalExpression());
 
-        if (type.equals("int")) {
-            if (SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope()) == null &&
-                    SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope().getParent()) == null) {
-                System.out.println("VAR NOT FOUND");
-                SymbolTableManager.getInstance().getActiveLocalScope().addInitializedVariableFromKeywords(type, name, value);
-            } else {
-                editor.addCustomError("VARIABLE ALREADY EXISTS IN FOR LOOP", ctx.start.getLine());
-            }
-        } else {
-            editor.addCustomError("TYPE MISMATCH IN FOR LOOP", ctx.start.getLine());
+
+
+        StatementController.getInstance().openConditionalCommand(ifCommand);
+        visitChildren(ctx.block(0));
+
+        StatementController.getInstance().reportExitPositiveRule();
+
+        if(isELSEStatement(ctx)){
+
+            System.out.println("CHECKING IF POSITIVE: " + StatementController.getInstance().isInPositiveRule());
+            visitChildren(ctx.block(1));
+
+
+
+
         }
+        StatementController.getInstance().compileControlledCommand();
 
-        System.out.println("PRINT ALL VARS");
-        SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
-        System.out.println("PRINT ALL VARS");
 
-        return visitChildren(ctx);
+
+
+
+        return null;
     }
+
 
     public static String testingExpression(String value, List<Integer> index, int line) {
        System.out.println("START OF TESTING EXPRESSION");
@@ -897,6 +911,14 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
 
 
         return value;
+    }
+    public static boolean isELSEStatement(ClypsParser.IfThenElseStatementContext ctx) {
+
+        List<TerminalNode> tokenList = ctx.getTokens(ClypsLexer.ELSE);
+        System.out.println("ELSE STATEMENT? " + tokenList.size());
+
+
+        return (tokenList.size() != 0);
     }
 
 }

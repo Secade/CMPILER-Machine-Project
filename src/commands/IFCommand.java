@@ -6,7 +6,7 @@ import antlr.ClypsParser;
 import execution.ExecutionManager;
 import org.antlr.v4.runtime.Parser;
 
-public class IFCommand implements ICommand{
+public class IFCommand implements ICommand, IConditionalCommand {
 
     private List<ICommand> posCommands;
     private List<ICommand> negCommands;
@@ -29,6 +29,7 @@ public class IFCommand implements ICommand{
 
         try {
             if (ConditionEval.evaluateCondition(this.condExp)) {
+                System.out.println("IF COMMAND RECEIVE TRUE");
                 for (ICommand command : this.posCommands) {
                     //executionMonitor.tryExecution()
                     command.execute();
@@ -45,6 +46,7 @@ public class IFCommand implements ICommand{
 //                        break;
                 }
             } else {
+                System.out.println("IF COMMAND RECEIVE FALSE");
                 for (ICommand command : this.negCommands) {
                     //executionMonitor.tryExecution()
                     command.execute();
@@ -73,14 +75,19 @@ public class IFCommand implements ICommand{
         this.negCommands.clear();
     }
 
-    public void addPositiveCommand(ICommand command){
+    @Override
+    public IControlledCommand.ControlTypeEnum getControlType() {
+        return IControlledCommand.ControlTypeEnum.CONDITIONAL_IF;
+    }
 
+    public void addPositiveCommand(ICommand command){
+        System.out.println("ADDED POSITIVE COMMANDS");
         this.posCommands.add(command);
 
     }
 
     public void addNegativeCommand(ICommand command){
-
+        System.out.println("ADDED NEGATIVE COMMAND");
         this.negCommands.add(command);
     }
 
@@ -97,7 +104,17 @@ public class IFCommand implements ICommand{
             return false;
     }
 
+    public List<ICommand> getPosCommands() {
+        return posCommands;
+    }
+
+    public List<ICommand> getNegCommands() {
+        return negCommands;
+    }
+
     public void resetReturnFlag() {
         returned = false;
     }
+
+  
 }

@@ -10,10 +10,10 @@ public class ConditionEval{
 
     public static boolean evaluateCondition(ClypsParser.ConditionalExpressionContext expression){
 
-        if(expression.getText().contains("(true)")){
+        if(expression.getText().contains("true")){
             return true;
         }
-        else if(expression.getText().contains("(false)")){
+        else if(expression.getText().contains("false")){
             return false;
         }
 
