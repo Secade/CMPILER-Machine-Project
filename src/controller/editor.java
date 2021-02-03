@@ -262,10 +262,13 @@ public class editor extends JFrame implements ActionListener {
             InputStream stream = new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8));
             ClypsLexer lexer = new ClypsLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
             ClypsParser parser = new ClypsParser(new CommonTokenStream(lexer));
+
             parser.removeErrorListeners();
             parser.addErrorListener(new ClypseCustomErrorListener());
             parser.addParseListener(new ClypsCustomListener());
-            parser.normalClassDeclaration();
+            ParseTree tree = parser.normalClassDeclaration();
+            ClypsCustomVisitor visit = new ClypsCustomVisitor();
+            visit.visit(tree);
 
             if (build()){
                 System.err.println("No errors detected.");

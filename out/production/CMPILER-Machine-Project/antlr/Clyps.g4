@@ -259,7 +259,9 @@ incDecStatement
 
 printStatement
     :   printHead '(' printBlock ')' ';'
-    |   printHead '(' (Identifier|StringLiteral)* (IntegerLiteral|'!'|'@'|'#'|'$'|'%'|'^'|'&'|'*'|':'|'.')* ')' {notifyErrorListeners("Missing double quotes");} ';'
+    //|   printHead '(' (Identifier|StringLiteral)* (IntegerLiteral|'!'|'@'|'#'|'$'|'%'|'^'|'&'|'*'|':'|'.')* ')' {notifyErrorListeners("Missing double quotes");} ';'
+    |   printHead '(' '"' printBlock ')' {notifyErrorListeners("Missing double quotes");} ';'
+    |   printHead '(' printBlock '"' ')' {notifyErrorListeners("Missing double quotes");} ';'
     ;
 
 printHead
@@ -275,7 +277,10 @@ printBlock
 printExtra
     :   Identifier ('('expression')')?
     |   StringLiteral
+    |   IntegerLiteral
+    //|   '"'  ('/'|'\'')+ '"'
     |   arrayCall
+    |   methodInvocation
     |   Identifier '+' {notifyErrorListeners("Too Many '+' Symbols");}
     |   StringLiteral '+' {notifyErrorListeners("Too Many '+' Symbols");}
     |   IntegerLiteral '+' {notifyErrorListeners("Too Many '+' Symbols");}
@@ -284,7 +289,6 @@ printExtra
     |   Identifier StringLiteral+  {notifyErrorListeners("Missing double quotes");}
     |   StringLiteral StringLiteral+    {notifyErrorListeners("Missing double quotes");}
     |   StringLiteral Identifier+    {notifyErrorListeners("Missing double quotes");}
-    |
     ;
 
 scanStatement

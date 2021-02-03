@@ -1,6 +1,7 @@
 package commands;
 
 import antlr.ClypsParser;
+import com.udojava.evalex.Expression;
 import controller.ClypsCustomVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -50,6 +51,12 @@ public class PrintCommand implements ICommand, ParseTreeListener {
         }else {
             List<Integer> dummy = null;
             value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(),dummy,this.expCtx.start.getLine());
+            try {
+                value = new Expression(value).eval().toPlainString();
+            }catch (NullPointerException e){
+                value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(),dummy,this.expCtx.start.getLine());
+            }
+
         }
 
 

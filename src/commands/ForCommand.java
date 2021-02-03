@@ -29,7 +29,8 @@ public class ForCommand implements IControlledCommand {
         System.out.println(start);
         System.out.println(end);
         this.counter=Integer.parseInt(new Expression(this.start).eval().toPlainString());
-        this.stop=Integer.parseInt(new Expression(this.end).eval().toPlainString());
+        if (this.end.matches("(A-Za-z)+"))
+            this.stop=Integer.parseInt(new Expression(this.end).eval().toPlainString());
 
 
     }
