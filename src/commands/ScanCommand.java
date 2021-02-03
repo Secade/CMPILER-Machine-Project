@@ -43,10 +43,14 @@ public class ScanCommand implements ICommand{
         else{
             System.out.println("In the scanCommand");
             ClypsValue clypsValue = SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(this.variable);
+            System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(this.variable));
             System.out.println("Lemme Pause");
 
-            Object x = editor.getInput();
-            clypsValue.setValue(x.toString());
+            String x = editor.getInput();
+            System.out.println(x);
+            clypsValue
+                    .setValue(
+                            x);
         }
     }
 

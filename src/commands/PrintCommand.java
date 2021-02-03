@@ -33,30 +33,28 @@ public class PrintCommand implements ICommand, ParseTreeListener {
 
     @Override
     public void execute() {
-
+        System.out.println("PRINT COMMAND EXECUTE");
         //System.out.println(expCtx.printBlock().getText());
 
         String value="";
 
         if (expCtx.printBlock().printExtra().arrayCall()!=null){
+
             List<Integer> matchList = new ArrayList<Integer>();
             Pattern regex = Pattern.compile("\\[(.*?)\\]");
-            System.out.println(this.expCtx.printBlock().getText());
-            Matcher regexMatcher = regex.matcher(this.expCtx.printBlock().getText());
-
+            System.out.println(expCtx.printBlock().getText());
+            Matcher regexMatcher = regex.matcher(expCtx.printBlock().getText());
+            List<Integer> dummy = null;
             while (regexMatcher.find()) {//Finds Matching Pattern in String
-                matchList.add(Integer.parseInt(regexMatcher.group(1).trim()));//Fetching Group from String
+                System.out.println("IN MATCHER");
+                System.out.println(ClypsCustomVisitor.testingExpression(regexMatcher.group(1).trim(), dummy, expCtx.start.getLine()));
+                matchList.add(Integer.parseInt(ClypsCustomVisitor.testingExpression(regexMatcher.group(1).trim(), dummy, expCtx.start.getLine())));//Fetching Group from String
             }
-            value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(),matchList,this.expCtx.start.getLine());
+            value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(), matchList, expCtx.start.getLine());
+
         }else {
             List<Integer> dummy = null;
-            value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(),dummy,this.expCtx.start.getLine());
-            try {
-                value = new Expression(value).eval().toPlainString();
-            }catch (NullPointerException e){
-                value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(),dummy,this.expCtx.start.getLine());
-            }
-
+            value = ClypsCustomVisitor.testingExpression(expCtx.printBlock().getText(), dummy, expCtx.start.getLine());
         }
 
 

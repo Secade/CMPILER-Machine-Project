@@ -303,7 +303,9 @@ public class editor extends JFrame implements ActionListener {
                     //SymbolTableManager.reset();
                     System.out.println("EXECUTING COMMANDS");
                     ExecutionManager.getInstance().executeAllActions();
+                    build();
                 }
+
             } catch (IOException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }

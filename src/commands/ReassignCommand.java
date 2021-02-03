@@ -25,8 +25,18 @@ public class ReassignCommand implements ICommand {
             List<Integer> dummy = null;
             System.out.println(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText());
             System.out.println(ctx.variableDeclarator().variableInitializer().getText());
-            int index = Integer.parseInt(ClypsCustomVisitor.testingExpression(ctx.variableDeclarator().variableDeclaratorId().expression().getText(), dummy, ctx.start.getLine()));
+            System.out.println("DEM BOI");
+            System.out.println(ctx.variableDeclarator().variableDeclaratorId().expression().getText());
+            int index = 0;
+            try {
+                index = Integer.parseInt(ClypsCustomVisitor.testingExpression(ctx.variableDeclarator().variableDeclaratorId().expression().getText(), dummy, ctx.start.getLine()));
+            } catch (NumberFormatException e) {
+
+            }
+            System.out.println(index);
+            System.out.println("CHECK POINT");
             String value = ClypsCustomVisitor.testingExpression(ctx.variableDeclarator().variableInitializer().getText(), dummy, ctx.start.getLine());
+            System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()));
             if (SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()) != null) {
                 System.out.println("WE IN");
                 ClypsArray te = SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText());
@@ -39,30 +49,46 @@ public class ReassignCommand implements ICommand {
                 if (index >= te.getSize() || index <= -1) {
                     editor.addCustomError("ARRAY OUT OF BOUNDS", ctx.start.getLine());
                 } else {
-                    if (ClypsValue.attemptTypeCast(value,SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType())!=null)
+                    if (ClypsValue.attemptTypeCast(value, SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()) != null)
                         SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).updateValueAt(temp, index);
+                    else
+                        editor.addCustomError("TYPE MISMATCH", ctx.start.getLine());
+                }
+                //.searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText())
+            }else if (SymbolTableManager.getInstance().getActiveLocalScope().getParent() != null) {
+                System.out.println("WE IN");
+                ClypsArray te = SymbolTableManager.getInstance().getActiveLocalScope().getParent().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText());
+                ClypsValue temp = new ClypsValue();
+                temp.setType(te.getPrimitiveType());
+                temp.setValue(value);
+                System.out.println("FOR CHECKING");
+                System.out.println(temp.getValue());
+                System.out.println(temp.getPrimitiveType());
+                if (index >= te.getSize() || index <= -1) {
+                    editor.addCustomError("ARRAY OUT OF BOUNDS", ctx.start.getLine());
+                } else {
+                    if (ClypsValue.attemptTypeCast(value, SymbolTableManager.getInstance().getActiveLocalScope().getParent().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()) != null)
+                        SymbolTableManager.getInstance().getActiveLocalScope().getParent().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).updateValueAt(temp, index);
                     else
                         editor.addCustomError("TYPE MISMATCH", ctx.start.getLine());
                 }
             } else {
                 //System.out.println("DUPLICATE VAR");
-                editor.addCustomError("VAR DOES NOT EXIST", ctx.start.getLine());
+                editor.addCustomError("VAR DOES NOT EXIST 1", ctx.start.getLine());
                 //System.out.println(editor.errors.get(editor.errors.size()-1));
             }
-            System.out.println("PRINT ALL ARRAYS");
-            SymbolTableManager.getInstance().getActiveLocalScope().printAllArrays();
-            System.out.println("PRINT ALL VALUES");
-            SymbolTableManager.getInstance().getActiveLocalScope().printArrayValues();
+//            System.out.println("PRINT ALL ARRAYS");
+//            SymbolTableManager.getInstance().getActiveLocalScope().printAllArrays();
+//            System.out.println("PRINT ALL VALUES");
+//            SymbolTableManager.getInstance().getActiveLocalScope().printArrayValues();
             System.out.println("END PRINT");
         } else {
-            System.out.println(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText());
-            //System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getValue().toString());
-            if (SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope())!= null) {
-                if (!SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope()).isFinal()) {
-                    if (SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope())!= null) {
+            if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()) != null) {
+                if (!SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).isFinal()) {
+                    if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()) != null) {
                         System.out.println("REASSIGN");
-                        System.out.println(ctx.variableDeclarator().variableDeclaratorId().getText());
                         String value;
+                        System.out.println(ctx.variableDeclarator().variableDeclaratorId().getText());
                         List<Integer> dummy = null;
                         if (!ctx.variableDeclarator().variableInitializer().getText().contains("[")) {
                             System.out.println("not array");
@@ -81,20 +107,16 @@ public class ReassignCommand implements ICommand {
                         }
                         System.out.println("CHECK THE TYPE ======?");
                         System.out.println(value);
-                        //System.out.println(ClypsValue.attemptTypeCast(value,SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()));
-                        //System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType());
-                        System.out.println(SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope()).getPrimitiveType());
+                        System.out.println(ClypsValue.attemptTypeCast(value, SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()));
+                        System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType());
                         System.out.println("CHECK THE TYPE ======?");
-                        if (ClypsValue.attemptTypeCast(value, SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope()).getPrimitiveType()) != null){
-                            System.out.println("In???");
-                            System.out.println(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText());
-                            SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope()).setValue(value);
-                            //SymbolTableManager.getInstance().getActiveLocalScope().setDeclaredVariable(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), value);
-                        }else
+                        if (ClypsValue.attemptTypeCast(value, SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()) != null)
+                            SymbolTableManager.getInstance().getActiveLocalScope().setDeclaredVariable(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), value);
+                        else
                             editor.addCustomError("TYPE MISMATCH", ctx.start.getLine());
                     } else {
                         //System.out.println("DUPLICATE VAR");
-                        editor.addCustomError("VAR DOES NOT EXIST", ctx.start.getLine());
+                        editor.addCustomError("VAR DOES NOT EXIST 2", ctx.start.getLine());
                         //System.out.println(editor.errors.get(editor.errors.size()-1));
                     }
                 } else {
