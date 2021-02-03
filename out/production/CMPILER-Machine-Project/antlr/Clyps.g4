@@ -293,11 +293,13 @@ scanStatement
 
 scanBlock
     :   StringLiteral (',' scanExtra)+
+    |   arrayCall (',' scanExtra)*
     |   Identifier (',' scanExtra)*
     ;
 
 scanExtra
     :   Identifier
+    |   arrayCall
     |   Identifier ','  {notifyErrorListeners("Extra , Detected");}
     ;
 

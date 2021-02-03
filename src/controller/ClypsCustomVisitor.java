@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import sun.awt.Symbol;
 import execution.ExecutionThread;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -581,10 +582,31 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
     public ClypsValue visitScanStatement(ClypsParser.ScanStatementContext ctx) {
 
         //PLACEHOLDER ONLY
-        System.out.println("INPUT: " + editor.getInput());
+//        System.out.println("INPUT: " + editor.getInput());
+        System.out.println("Added SCAN Command");
 
 
-        return visitChildren(ctx);
+        if(ctx.scanBlock().arrayCall() == null){
+            System.out.println("I got in1");
+            visitChildren(ctx);
+            System.out.println("HELLO "+ ctx.scanBlock().StringLiteral().toString());
+            System.out.println("Hello " +ctx.scanBlock().scanExtra(0).Identifier().toString());
+            ScanCommand scan = new ScanCommand(ctx.scanBlock().StringLiteral().toString(), ctx.scanBlock().scanExtra(0).Identifier().toString());
+            scan.execute();
+        }
+        else{
+            System.out.println("I got in");
+            visitChildren(ctx);
+            ScanCommand scan = new ScanCommand(ctx.scanBlock().StringLiteral().toString(), ctx.scanBlock().arrayCall());
+
+            ExecutionManager.getInstance().addCommand(scan);
+        }
+
+
+
+
+
+        return null;
     }
 
     @Override
@@ -658,7 +680,7 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
         }
 
         System.out.println("PRINT ALL VARS");
-        SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
+       // SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
         System.out.println("PRINT ALL VARS");
 
         return visitChildren(ctx);
