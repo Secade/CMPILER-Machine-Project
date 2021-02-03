@@ -57,7 +57,7 @@ public class ClypsValue {
             System.out.println("IN");
             this.value = value;
             this.type = primitiveType;
-            if (this.type==PrimitiveType.INT||this.type==PrimitiveType.FLOAT||this.type==PrimitiveType.DOUBLE||this.type==PrimitiveType.BOOLEAN)
+            if ((this.type==PrimitiveType.INT||this.type==PrimitiveType.FLOAT||this.type==PrimitiveType.DOUBLE||this.type==PrimitiveType.BOOLEAN)&&value!=null)
                 tryEvaluate(value.toString());
 
         }else{
@@ -181,22 +181,22 @@ public class ClypsValue {
         System.out.println("ATTEMPT TRANSLATE");
         System.out.println(primitiveTypeString);
 
-        if(primitiveTypeString.contains(PrimitiveType.BOOLEAN.toString().toLowerCase(Locale.ROOT))) {
+        if(primitiveTypeString.toLowerCase(Locale.ROOT).contains(PrimitiveType.BOOLEAN.toString().toLowerCase(Locale.ROOT))) {
             primitiveType = PrimitiveType.BOOLEAN;
         }
-        else if(primitiveTypeString.contains(PrimitiveType.CHAR.toString().toLowerCase(Locale.ROOT))) {
+        else if(primitiveTypeString.toLowerCase(Locale.ROOT).contains(PrimitiveType.CHAR.toString().toLowerCase(Locale.ROOT))) {
             primitiveType = PrimitiveType.CHAR;
         }
-        else if(primitiveTypeString.contains(PrimitiveType.DOUBLE.toString().toLowerCase(Locale.ROOT))) {
+        else if(primitiveTypeString.toLowerCase(Locale.ROOT).contains(PrimitiveType.DOUBLE.toString().toLowerCase(Locale.ROOT))) {
             primitiveType = PrimitiveType.DOUBLE;
         }
-        else if(primitiveTypeString.contains(PrimitiveType.FLOAT.toString().toLowerCase(Locale.ROOT))) {
+        else if(primitiveTypeString.toLowerCase(Locale.ROOT).contains(PrimitiveType.FLOAT.toString().toLowerCase(Locale.ROOT))) {
             primitiveType = PrimitiveType.FLOAT;
         }
-        else if(primitiveTypeString.contains(PrimitiveType.INT.toString().toLowerCase(Locale.ROOT))) {
+        else if(primitiveTypeString.toLowerCase(Locale.ROOT).contains(PrimitiveType.INT.toString().toLowerCase(Locale.ROOT))) {
             primitiveType = PrimitiveType.INT;
         }
-        else if(primitiveTypeString.toLowerCase(Locale.ROOT).contains(PrimitiveType.STRING.toString().toLowerCase(Locale.ROOT))) {
+        else if(primitiveTypeString.toLowerCase(Locale.ROOT).toLowerCase(Locale.ROOT).contains(PrimitiveType.STRING.toString().toLowerCase(Locale.ROOT))) {
             primitiveType = PrimitiveType.STRING;
         }
 

@@ -30,14 +30,13 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
             return visitChildren(ctx);
         String name = ctx.localVariableDeclaration().variableDeclaratorList().variableDeclarator().get(0).variableDeclaratorId().getText();
         String value1 = ctx.localVariableDeclaration().variableDeclaratorList().variableDeclarator().get(0).variableInitializer().getText();
-        System.out.println(ctx.localVariableDeclaration().unannType(0).getText());
-        System.out.println(ctx.localVariableDeclaration().variableDeclaratorList().variableDeclarator().get(0).variableDeclaratorId().getText());
-        System.out.println(ctx.localVariableDeclaration().variableDeclaratorList().variableDeclarator().get(0).variableInitializer().getText());
+//        System.out.println(ctx.localVariableDeclaration().unannType(0).getText());
+//        System.out.println(ctx.localVariableDeclaration().variableDeclaratorList().variableDeclarator().get(0).variableDeclaratorId().getText());
+//        System.out.println(ctx.localVariableDeclaration().variableDeclaratorList().variableDeclarator().get(0).variableInitializer().getText());
 
         System.out.println("----");
         List<Integer> dummy = null;
         String value = testingExpression(value1, dummy, ctx.start.getLine());
-
 
         if (SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope()) == null &&
                 SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope().getParent()) == null) {
@@ -106,9 +105,38 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
             editor.addCustomError("DUPLICATE VAR DETECTED", ctx.start.getLine());
         }
 
-        System.out.println("PRINT ALL VARS");
-        SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
-        System.out.println("PRINT ALL VARS");
+        //if (ExecutionManager.getInstance().isInFunctionExecution()){
+            NewVarCommand newVarCommand = new NewVarCommand(ctx);
+
+            StatementController statementControl = StatementController.getInstance();
+
+            if(statementControl.isInConditionalCommand()) {
+                IConditionalCommand conditionalCommand = (IConditionalCommand) statementControl.getActiveControlledCommand();
+
+                if(statementControl.isInPositiveRule()) {
+                    conditionalCommand.addPositiveCommand(newVarCommand);
+                }
+                else {
+                    //String functionName = ExecutionManager.getInstance().getCurrentFunction().getMethodName();
+                    //ExecutionManager.getInstance().getCurrentFunction().setValidReturns(true);
+                    conditionalCommand.addNegativeCommand(newVarCommand);
+                }
+            }
+
+            else if(statementControl.isInControlledCommand()) {
+                IControlledCommand controlledCommand = (IControlledCommand) statementControl.getActiveControlledCommand();
+                controlledCommand.addCommand(newVarCommand);
+            }else {
+                //ExecutionManager.getInstance().getCurrentFunction().setValidReturns(true);
+
+                ExecutionManager.getInstance().addCommand(newVarCommand);
+            }
+
+            System.out.println("PRINT ALL VARS");
+            SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
+            System.out.println("PRINT ALL VARS");
+        //}
+
         return visitChildren(ctx);
     }
 
@@ -134,8 +162,10 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
                 if (index >= te.getSize() || index <= -1) {
                     editor.addCustomError("ARRAY OUT OF BOUNDS", ctx.start.getLine());
                 } else {
-                    SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).updateValueAt(temp, index);
-
+                    if (ClypsValue.attemptTypeCast(value,SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType())!=null)
+                        SymbolTableManager.getInstance().getActiveLocalScope().searchArray(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).updateValueAt(temp, index);
+                    else
+                        editor.addCustomError("TYPE MISMATCH", ctx.start.getLine());
                 }
             } else {
                 //System.out.println("DUPLICATE VAR");
@@ -170,7 +200,15 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
                             }
                             value = testingExpression(ctx.variableDeclarator().variableInitializer().getText(), matchList, ctx.start.getLine());
                         }
-                        SymbolTableManager.getInstance().getActiveLocalScope().setDeclaredVariable(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), value);
+                        System.out.println("CHECK THE TYPE ======?");
+                        System.out.println(value);
+                        System.out.println(ClypsValue.attemptTypeCast(value,SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()));
+                        System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType());
+                        System.out.println("CHECK THE TYPE ======?");
+                        if (ClypsValue.attemptTypeCast(value,SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType())!=null)
+                            SymbolTableManager.getInstance().getActiveLocalScope().setDeclaredVariable(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), value);
+                        else
+                            editor.addCustomError("TYPE MISMATCH", ctx.start.getLine());
                     } else {
                         //System.out.println("DUPLICATE VAR");
                         editor.addCustomError("VAR DOES NOT EXIST", ctx.start.getLine());
@@ -182,6 +220,32 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
             }
 
 
+        }
+
+        ReassignCommand reassignCommand = new ReassignCommand(ctx);
+
+        StatementController statementControl = StatementController.getInstance();
+
+        if(statementControl.isInConditionalCommand()) {
+            IConditionalCommand conditionalCommand = (IConditionalCommand) statementControl.getActiveControlledCommand();
+
+            if(statementControl.isInPositiveRule()) {
+                conditionalCommand.addPositiveCommand(reassignCommand);
+            }
+            else {
+                //String functionName = ExecutionManager.getInstance().getCurrentFunction().getMethodName();
+                //ExecutionManager.getInstance().getCurrentFunction().setValidReturns(true);
+                conditionalCommand.addNegativeCommand(reassignCommand);
+            }
+        }
+
+        else if(statementControl.isInControlledCommand()) {
+            IControlledCommand controlledCommand = (IControlledCommand) statementControl.getActiveControlledCommand();
+            controlledCommand.addCommand(reassignCommand);
+        }else {
+            //ExecutionManager.getInstance().getCurrentFunction().setValidReturns(true);
+
+            ExecutionManager.getInstance().addCommand(reassignCommand);
         }
 
 
@@ -228,6 +292,32 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
 
         } else {
             editor.addCustomError("DUPLICATE VAR DETECTED", ctx.start.getLine());
+        }
+
+        BlankVarCommand blankVarCommand = new BlankVarCommand(ctx);
+
+        StatementController statementControl = StatementController.getInstance();
+
+        if(statementControl.isInConditionalCommand()) {
+            IConditionalCommand conditionalCommand = (IConditionalCommand) statementControl.getActiveControlledCommand();
+
+            if(statementControl.isInPositiveRule()) {
+                conditionalCommand.addPositiveCommand(blankVarCommand);
+            }
+            else {
+                //String functionName = ExecutionManager.getInstance().getCurrentFunction().getMethodName();
+                //ExecutionManager.getInstance().getCurrentFunction().setValidReturns(true);
+                conditionalCommand.addNegativeCommand(blankVarCommand);
+            }
+        }
+
+        else if(statementControl.isInControlledCommand()) {
+            IControlledCommand controlledCommand = (IControlledCommand) statementControl.getActiveControlledCommand();
+            controlledCommand.addCommand(blankVarCommand);
+        }else {
+            //ExecutionManager.getInstance().getCurrentFunction().setValidReturns(true);
+
+            ExecutionManager.getInstance().addCommand(blankVarCommand);
         }
 
         System.out.println("PRINT ALL VARS");
@@ -367,6 +457,9 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
                     System.out.println(value.getPrimitiveType());
                     function.addParameter(ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().get(i).variableDeclaratorId().Identifier().getText(),value);
 
+                    function.getParentScope().addEmptyVariableFromKeywords(
+                                    ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().get(i).unannType().getText()
+                                    ,ctx.methodHeader().methodDeclarator().formalParameters().formalParameter().get(i).variableDeclaratorId().Identifier().getText());
                 }
             }else {
                 System.out.println("EMPTY PARAMS");
@@ -379,6 +472,8 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
             function.printParams();
             System.out.println("PRINT PARAMS");
 
+
+
             visitChildren(ctx);
         } else {
             editor.addCustomError("DUPLICATE FUNCTION DETECTED", ctx.start.getLine());
@@ -390,6 +485,8 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
         if (!ExecutionManager.getInstance().getCurrentFunction().isReturned&&ExecutionManager.getInstance().getCurrentFunction().getReturnType()!= ClypsFunction.FunctionType.VOID_TYPE){
             editor.addCustomError("MISSING RETURN STATEMENT", ctx.stop.getLine());
         }
+
+
 
         ExecutionManager.getInstance().closeFunctionExecution();
 
@@ -692,23 +789,42 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
 
 
     public static String testingExpression(String value, List<Integer> index, int line) {
-       //System.out.println("START OF TESTING EXPRESSION");
+       System.out.println("START OF TESTING EXPRESSION");
         //String[] test = value.split("[^A-Za-z]+");
         String[] test = value.split("[-+*/\\(\\)&|><=!]+");
         ArrayList<String> vars = new ArrayList<>();
         ArrayList<String> store = new ArrayList<>();
-        //System.out.println("------");
+        System.out.println("------");
         for (int i = 0; i < test.length; i++) {
-            //System.out.println(test[i]);
-            //SymbolTableManager.searchVariableInLocalIterative(test[i], SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
-            //                    SymbolTableManager.searchVariableInLocalIterative(test[i], SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null ||
-            if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(test[i]) != null ||
+            System.out.println(test[i]);
+            if(SymbolTableManager.searchVariableInLocalIterative(test[i], SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
+                                SymbolTableManager.searchVariableInLocalIterative(test[i], SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null){
+                System.out.println("FOUND1");
+                vars.add(test[i].replaceAll("\\[.*\\]", ""));
+            }else if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(test[i]) != null ||
                     SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(test[i]) != null ||
                     SymbolTableManager.getInstance().getActiveLocalScope().searchArray(test[i].replaceAll("\\[.*\\]", "")) != null) {
+                System.out.println("FOUND2");
                 vars.add(test[i].replaceAll("\\[.*\\]", ""));
-                //System.out.println(test[i].replaceAll("\\[.*\\]", ""));
+                System.out.println(test[i].replaceAll("\\[.*\\]", ""));
+            } else if (ExecutionManager.getInstance().isInFunctionExecution()){
+                System.out.println("did it get in?");
+                System.out.println(test[i]);
+                System.out.println(ExecutionManager.getInstance().getCurrentFunction().getParentScope().searchVariableIncludingLocal(test[i]));
+
+                if (ExecutionManager.getInstance().getCurrentFunction().getParentScope().searchVariableIncludingLocal(test[i])!=null){
+                    System.out.println("FUNCTION EXP TEST");
+                    System.out.println(test[i].replaceAll("\\[.*\\]", ""));
+                    vars.add(test[i].replaceAll("\\[.*\\]", ""));
+                }else{
+                    for (int j =0;j<ExecutionManager.getInstance().getCurrentFunction().getParameterValueSize();j++){
+                        if (ExecutionManager.getInstance().getCurrentFunction().getParametername(j).equals(test[i])){
+                            vars.add(test[i].replaceAll("\\[.*\\]", ""));
+                        }
+                    }
+                }
             } else if (test[i].matches("[A-Za-z]+") && (!test[i].contains("true") && !test[i].contains("false"))) {
-                //System.out.println("Hey " + test[i]);
+                System.out.println("Hey " + test[i]);
 
                 System.out.println("TOLD YOU SO");
                 editor.addCustomError("VARIABLE DOES NOT EXIST", line);
@@ -716,48 +832,91 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
             }
         }
 
-//        System.out.println("NEW LIST");
-//        for (String print : vars) {
-//            System.out.println(print);
-//        }
+        System.out.println("NEW LIST");
+        for (String print : vars) {
+            System.out.println(print);
+        }
 
-        //System.out.println("START VARS");
+        System.out.println("START VARS");
         for (int i = 0; i < vars.size(); i++) {
             System.out.println(vars.get(i));
-            //System.out.println(index);
-            //SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
-            //                    SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null ||
+            System.out.println(index);
             if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)) != null ||
                     SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)) != null ||
                     SymbolTableManager.getInstance().getActiveLocalScope().searchArray(vars.get(i)) != null) {
-                //System.out.println("VAR FOUND HERE");
+                System.out.println("VAR FOUND HERE2");
                 if (index == null) {
-                    //System.out.println("PROCESS REGULAR");
+                    System.out.println("PROCESS REGULAR");
                     System.out.println("PRINT ALL VARS");
                     SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
                     System.out.println("PRINT ALL VARS");
-                    if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i))
-                             == null) {
+                    if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)) == null) {
                         editor.addCustomError("INCORRECT ASSIGNMENT", line);
                     } else {
-                        store.add(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)).getValue().toString());
+                        if (ExecutionManager.getInstance().isInFunctionExecution()){
+                            System.out.println("FUNCTION TESTING VALUE =+-+");
+                            System.out.println(ExecutionManager.getInstance().getCurrentFunction().getParameterAt(1));
+                            System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)).getValue());
+                            if (ExecutionManager.getInstance().getCurrentFunction().getParentScope().searchVariableIncludingLocal(vars.get(i))!=null){
+                                System.out.println("?.?");
+                                System.out.println(ExecutionManager.getInstance().getCurrentFunction().getParentScope().searchVariableIncludingLocal(vars.get(i)).getValue().toString());
+                                store.add(ExecutionManager.getInstance().getCurrentFunction().getParentScope().searchVariableIncludingLocal(vars.get(i)).getValue().toString());
+                            }
 
+
+                        }else {
+                            store.add(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(vars.get(i)).getValue().toString());
+
+                        }
                     }
                 } else {
-                    //System.out.println("PROCESS ARRAY");
-                    store.add(SymbolTableManager.getInstance().getActiveLocalScope().searchArray(vars.get(i))
-                            .getValueAt(index.get(i))
-                            .getValue().toString());
+                    System.out.println("PROCESS ARRAY");
+                    store.add(SymbolTableManager.getInstance().getActiveLocalScope().searchArray(vars.get(i)).getValueAt(index.get(i)).getValue().toString());
                 }
-            }else {
+            } else if (ExecutionManager.getInstance().isInFunctionExecution()){
+                System.out.println("FUNCTION TESTING VALUE =+-+");
+//                    if (ExecutionManager.getInstance().getCurrentFunction().getParentScope().searchVariableIncludingLocal(vars.get(i))!=null){
+//                        System.out.println("?.?");
+//                        System.out.println(ExecutionManager.getInstance().getCurrentFunction().getParentScope().searchVariableIncludingLocal(vars.get(i)).getValue().toString());
+//
+//                    }else {
+                        for (int j =0;j<ExecutionManager.getInstance().getCurrentFunction().getParameterValueSize();j++){
+                            if (ExecutionManager.getInstance().getCurrentFunction().getParametername(j).equals(vars.get(i))){
+                                store.add(ExecutionManager.getInstance().getCurrentFunction().getParameterAt(j).getValue().toString());
+                            }
+                        }
+//                    }
+
+
+            }else if(SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope()) != null ||
+                    SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope().getParent()) != null){
+                System.out.println("VAR FOUND 1");
+                System.out.println(SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope()).getValue());
+                if (index == null) {
+                    System.out.println("PROCESS REGULAR");
+                    System.out.println("PRINT ALL VARS");
+                    //SymbolTableManager.getInstance().getActiveLocalScope().getParent().printAllVars();
+                    System.out.println("PRINT ALL VARS");
+                    if (SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope()) == null) {
+                        editor.addCustomError("INCORRECT ASSIGNMENT", line);
+                    } else {
+                        System.out.println("WE IN");
+                        store.add(SymbolTableManager.searchVariableInLocalIterative(vars.get(i), SymbolTableManager.getInstance().getActiveLocalScope()).getValue().toString());
+                    }
+                } else {
+                    System.out.println("PROCESS ARRAY");
+                    store.add(SymbolTableManager.getInstance().getActiveLocalScope().searchArray(vars.get(i)).getValueAt(index.get(i)).getValue().toString());
+                }
+            }else  {
+                System.out.println("this var not found?");
                 editor.addCustomError("VAR NOT FOUND", line);
             }
         }
 
-//        System.out.println("SHOW STORED");
-//        for (String pr : store) {
-//            System.out.println(pr);
-//        }
+        System.out.println("SHOW STORED");
+        for (String pr : store) {
+            System.out.println(pr);
+        }
 
         for (int i = 0; i < store.size(); i++) {
             if (store.size() == 1 && !value.contains("\"")) {
@@ -769,8 +928,8 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
             }
         }
 
-//        System.out.println("NEW CREATED VALUE");
-//        System.out.println(value);
+        System.out.println("NEW CREATED VALUE");
+        System.out.println(value);
 
 
         return value;
