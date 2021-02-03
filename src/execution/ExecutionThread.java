@@ -45,7 +45,9 @@ public class ExecutionThread extends Thread{
     }
 
     //halts commands
-    public void claimExecutionFlag(){this.execFlag = false;}
+    public void claimExecutionFlag(){
+        this.execFlag = false;
+    }
 
     public void releaseExecutionFlag(){
         this.lock.lock();

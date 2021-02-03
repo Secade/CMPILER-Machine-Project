@@ -3,6 +3,7 @@ package commands;
 import java.util.*;
 
 import antlr.ClypsParser;
+import controller.ClypsCustomVisitor;
 import execution.ExecutionManager;
 import org.antlr.v4.runtime.Parser;
 
@@ -23,7 +24,7 @@ public class IFCommand implements ICommand, IConditionalCommand {
 
     @Override
     public void execute() {
-        this.identifyVariables();
+        //this.identifyVariables();
 
         //ExecutionMonitor Stuff
 
@@ -91,8 +92,23 @@ public class IFCommand implements ICommand, IConditionalCommand {
         this.negCommands.add(command);
     }
 
-    private void identifyVariables(){
-        //Value Stuff to be added
+    private String identifyVariables(ClypsParser.ConditionalExpressionContext condExp){
+
+        String condition = condExp.getText();
+        String value = "";
+
+
+        List<Integer> dummy = null;
+
+        for(int i = 0; i < condition.length(); i++){
+
+        }
+
+
+
+
+        return value;
+
     }
 
     public boolean isReturned(){return returned;}

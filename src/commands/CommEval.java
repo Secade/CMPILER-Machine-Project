@@ -28,6 +28,7 @@ public class CommEval implements ICommand, ParseTreeListener {
     }
 
 
+
     @Override
     public void execute() {
         this.newExp = this.expression.getText();
