@@ -18,6 +18,8 @@ public class ReassignCommand implements ICommand {
 
     @Override
     public void execute() {
+        System.out.println("DUPLICATE DETECTED ");
+
         System.out.println("REASSINING PART");
         if (ctx.variableDeclarator().variableDeclaratorId().getText().contains("[")) {
             List<Integer> dummy = null;
@@ -53,12 +55,14 @@ public class ReassignCommand implements ICommand {
             SymbolTableManager.getInstance().getActiveLocalScope().printArrayValues();
             System.out.println("END PRINT");
         } else {
-            if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()) != null) {
-                if (!SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).isFinal()) {
-                    if (SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()) != null) {
+            System.out.println(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText());
+            //System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getValue().toString());
+            if (SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope())!= null) {
+                if (!SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope()).isFinal()) {
+                    if (SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope())!= null) {
                         System.out.println("REASSIGN");
-                        String value;
                         System.out.println(ctx.variableDeclarator().variableDeclaratorId().getText());
+                        String value;
                         List<Integer> dummy = null;
                         if (!ctx.variableDeclarator().variableInitializer().getText().contains("[")) {
                             System.out.println("not array");
@@ -77,12 +81,16 @@ public class ReassignCommand implements ICommand {
                         }
                         System.out.println("CHECK THE TYPE ======?");
                         System.out.println(value);
-                        System.out.println(ClypsValue.attemptTypeCast(value,SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()));
-                        System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType());
+                        //System.out.println(ClypsValue.attemptTypeCast(value,SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()));
+                        //System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType());
+                        System.out.println(SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope()).getPrimitiveType());
                         System.out.println("CHECK THE TYPE ======?");
-                        if (ClypsValue.attemptTypeCast(value,SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType())!=null)
-                            SymbolTableManager.getInstance().getActiveLocalScope().setDeclaredVariable(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), value);
-                        else
+                        if (ClypsValue.attemptTypeCast(value, SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope()).getPrimitiveType()) != null){
+                            System.out.println("In???");
+                            System.out.println(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText());
+                            SymbolTableManager.searchVariableInLocalIterative(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), SymbolTableManager.getInstance().getActiveLocalScope()).setValue(value);
+                            //SymbolTableManager.getInstance().getActiveLocalScope().setDeclaredVariable(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText(), value);
+                        }else
                             editor.addCustomError("TYPE MISMATCH", ctx.start.getLine());
                     } else {
                         //System.out.println("DUPLICATE VAR");
@@ -96,6 +104,8 @@ public class ReassignCommand implements ICommand {
 
 
         }
+
+        editor.addCustomError("DUPLICATE VAR DETECTED", ctx.start.getLine());
 
 
     }

@@ -297,6 +297,7 @@ public class editor extends JFrame implements ActionListener {
                         System.err.println(error);
                     }
                 }else {
+                    //SymbolTableManager.reset();
                     System.out.println("EXECUTING COMMANDS");
                     ExecutionManager.getInstance().executeAllActions();
                 }

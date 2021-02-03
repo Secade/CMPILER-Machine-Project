@@ -219,5 +219,38 @@ public class ClypsFunction {
         }
     }
 
+    public Object attemptFunctionTypeCast(String value, FunctionType functionType) {
+        System.out.println("Attempting F");
+        System.out.println(value);
+        System.out.println(functionType);
+        switch (functionType) {
+            case BOOL_TYPE:
+//                System.out.println("A - BOOLEAN");
+//                System.out.println(Boolean.valueOf(value));
+                return Boolean.valueOf(value);
+            case CHAR_TYPE:
+                return Character.valueOf(value.charAt(0));
+            case INT_TYPE:
+                //System.out.println("I - INTEGER");
+                //System.out.println(Integer.valueOf(value));
+                try{
+                    return Integer.valueOf(value);
+                }catch (NumberFormatException e){
+                    return null;
+                }
+            case DECIMAL_TYPE:
+                try{
+                    return Double.valueOf(value);
+                }catch (NumberFormatException e){
+                    return null;
+                }
+            case STRING_TYPE:
+                if (value.contains("\""))
+                return value;
+            default:
+                return null;
+        }
+    }
+
 
 }
