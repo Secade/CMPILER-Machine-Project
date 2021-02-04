@@ -253,7 +253,13 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
                             value = testingExpression(ctx.variableDeclarator().variableInitializer().getText(), matchList, ctx.start.getLine());
                         }
                         //System.out.print("CHECK THE TYPE ======?");
-                        value = new Expression(value).eval().toPlainString();
+                        //CHANGE ME
+                        try {
+                            value = new Expression(value).eval().toPlainString();
+                        }catch (ArithmeticException e){
+
+                        }
+
                         //System.out.print(value);
                         //System.out.print(ClypsValue.attemptTypeCast(value, SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType()));
                         //System.out.print(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(ctx.variableDeclarator().variableDeclaratorId().Identifier().getText()).getPrimitiveType());
@@ -450,7 +456,6 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
 
     @Override
     public ClypsValue visitIfThenStatement(ClypsParser.IfThenStatementContext ctx) {
-//CHANGE ME
         IFCommand ifCommand = new IFCommand(ctx.conditionalExpression());
 
 
@@ -778,7 +783,7 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
 
 
         } else {
-            editor.addCustomError("INCORRECT ASSIGNMENT EXPRESSION: " + name, ctx.start.getLine());
+            //editor.addCustomError("INCORRECT ASSIGNMENT EXPRESSION: " + name, ctx.start.getLine());
             return null;
         }
 
