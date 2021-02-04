@@ -33,6 +33,7 @@ public class ScanCommand implements ICommand{
 
     @Override
     public void execute() {
+        System.out.println("EXECUTING SCAN COMMAND");
         if(!(array == null)){
             Object x = editor.getInput();
 

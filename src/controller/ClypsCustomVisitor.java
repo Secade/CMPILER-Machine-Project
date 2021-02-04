@@ -631,22 +631,43 @@ public class ClypsCustomVisitor extends ClypsBaseVisitor<ClypsValue> {
         //PLACEHOLDER ONLY
 //        System.out.println("INPUT: " + editor.getInput());
         System.out.println("Added SCAN Command");
-
+        ScanCommand scan;
 
         if (ctx.scanBlock().arrayCall() == null) {
             System.out.println("I got in1");
             visitChildren(ctx);
             System.out.println("HELLO " + ctx.scanBlock().StringLiteral().toString());
             System.out.println("Hello " + ctx.scanBlock().scanExtra(0).Identifier().toString());
-            ScanCommand scan = new ScanCommand(ctx.scanBlock().StringLiteral().toString(), ctx.scanBlock().scanExtra(0).Identifier().toString());
-            scan.execute();
+            scan = new ScanCommand(ctx.scanBlock().StringLiteral().toString(), ctx.scanBlock().scanExtra(0).Identifier().toString());
+            //scan.execute();
         } else {
             System.out.println("I got in");
             visitChildren(ctx);
-            ScanCommand scan = new ScanCommand(ctx.scanBlock().StringLiteral().toString(), ctx.scanBlock().arrayCall());
+            scan = new ScanCommand(ctx.scanBlock().StringLiteral().toString(), ctx.scanBlock().arrayCall());
 
-            ExecutionManager.getInstance().addCommand(scan);
+            //ExecutionManager.getInstance().addCommand(scan);
         }
+
+        StatementController statementControl = StatementController.getInstance();
+
+            if (statementControl.isInConditionalCommand()) {
+                System.out.println("SCAN IN CONDITIONAL");
+                IConditionalCommand conditionalCommand = (IConditionalCommand) statementControl.getActiveControlledCommand();
+
+                if (statementControl.isInPositiveRule()) {
+                    conditionalCommand.addPositiveCommand(scan);
+                } else {
+                    conditionalCommand.addNegativeCommand(scan);
+                }
+            } else if (statementControl.isInControlledCommand()) {
+                System.out.println("SCAN IN CONTROLLED");
+                IControlledCommand controlledCommand = (IControlledCommand) statementControl.getActiveControlledCommand();
+                controlledCommand.addCommand(scan);
+            } else {
+                System.out.println("SCAN IN OPEN ");
+                ExecutionManager.getInstance().addCommand(scan);
+            }
+
 
 
         return null;
