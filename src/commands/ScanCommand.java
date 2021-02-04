@@ -28,12 +28,13 @@ public class ScanCommand implements ICommand{
 
     public ScanCommand(String displayMsg, ClypsParser.ArrayCallContext ctx){
         this.displayMsg = StringUtils.removeQuotes(displayMsg);
+        this.variable = "-999";
         this.array = ctx;
     }
 
     @Override
     public void execute() {
-        System.out.println("EXECUTING SCAN COMMAND");
+        //System.out.println("EXECUTING SCAN COMMAND");
         if(!(array == null)){
             Object x = editor.getInput();
 
@@ -42,13 +43,21 @@ public class ScanCommand implements ICommand{
             handleArray(x.toString());
         }
         else{
-            System.out.println("In the scanCommand");
+            //System.out.println("In the scanCommand");
             ClypsValue clypsValue = SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(this.variable);
-            System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(this.variable));
-            System.out.println("Lemme Pause");
+            //System.out.println(this.variable);
+//            if (SymbolTableManager.getInstance().getActiveLocalScope().getParent().searchVariableIncludingLocal(this.variable)!=null)
+//                //System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().getParent().searchVariableIncludingLocal(this.variable));
+//            else
+                if(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(this.variable)!=null){
+                //System.out.println(SymbolTableManager.getInstance().getActiveLocalScope().searchVariableIncludingLocal(this.variable));
+            }else {
+                //System.out.println("NOPE!");
+            }
+            //System.out.println("Lemme Pause");
 
             String x = editor.getInput();
-            System.out.println(x);
+            //System.out.println(x);
             clypsValue
                     .setValue(
                             x);

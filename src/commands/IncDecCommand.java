@@ -26,7 +26,7 @@ public class IncDecCommand implements ICommand{
 
         if (this.ctx.getText().contains("[")){
             int index = Integer.parseInt(this.ctx.getText().substring(this.ctx.getText().indexOf("[")+1,this.ctx.getText().indexOf("]")).trim());
-            System.out.println("IND"+index);
+            //System.out.println("IND"+index);
             if (this.check.contains("pos")){
                 if (this.type== ClypsValue.PrimitiveType.INT){
                     valueInt=Integer.parseInt(SymbolTableManager.getInstance().getActiveLocalScope().searchArray(this.name).getValueAt(index).getValue().toString());
@@ -44,9 +44,9 @@ public class IncDecCommand implements ICommand{
                 ClypsValue temp = new ClypsValue();
                 temp.setType(this.type);
                 temp.setValue(value);
-                System.out.println("NEW VAL?");
-                System.out.println(this.type);
-                System.out.println(value);
+                //System.out.println("NEW VAL?");
+                //System.out.println(this.type);
+                //System.out.println(value);
                 SymbolTableManager.getInstance().getActiveLocalScope().searchArray(this.name).updateValueAt(temp,index);
             }else if (this.check.contains("neg")){
                 if (this.type== ClypsValue.PrimitiveType.INT){

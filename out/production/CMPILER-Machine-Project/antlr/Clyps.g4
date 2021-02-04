@@ -236,6 +236,7 @@ localVariableDeclarationStatement
 localVariableDeclaration
 	:	variableModifier* unannType variableDeclaratorList
 	|   unannType unannType '=' variableInitializer  {notifyErrorListeners("Explicit Use of Keyword");}
+	//|   expression {notifyErrorListeners("Expected Assignment Expression");}
 	;
 
 statement
@@ -255,6 +256,8 @@ statement
 incDecStatement
     :   postIncrementExpression ';'
     |	postDecrementExpression ';'
+    //|   ('10'|IntegerLiteral|'!'|'@'|'#'|'$'|'%'|'^'|'&'|'*'|':'|'.'|Identifier)* (';') //{notifyErrorListeners("Invalid Assignment 1");}
+    //|   expression ';'  {notifyErrorListeners("Invalid Assignment 2");}
     ;
 
 printStatement
@@ -278,6 +281,7 @@ printExtra
     :   Identifier ('('expression')')?
     |   StringLiteral
     |   IntegerLiteral
+    |   expression    //REMOVE THIS IF DOING TEST CASE 3
     //|   '"'  ('/'|'\'')+ '"'
     |   arrayCall
     |   methodInvocation
@@ -420,7 +424,7 @@ argumentList
 	;
 
 arrayCreationExpression
-	:	unannArrayType Identifier '=' 'new' primitiveType dimExpr ';'
+	:	unannArrayType Identifier '=' 'new' unannType dimExpr ';'
 	//|	unannArrayType Identifier '=' 'new' primitiveType dims arrayInitializer
 	;
 
@@ -516,6 +520,8 @@ shiftExpression
 	|	shiftExpression '<' '<' unaryExpressionNotPlusMinus
 	|	shiftExpression '>' '>' unaryExpressionNotPlusMinus
 	|	shiftExpression '>' '>' '>' unaryExpressionNotPlusMinus
+	|	shiftExpression '%' unaryExpressionNotPlusMinus
+    |   shiftExpression '%%'('%')* unaryExpressionNotPlusMinus {notifyErrorListeners("Too Many '%' Symbols");}
 	;
 
 additiveExpression

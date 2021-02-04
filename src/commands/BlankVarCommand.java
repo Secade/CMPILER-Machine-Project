@@ -20,15 +20,15 @@ public class BlankVarCommand implements ICommand{
 
         if (SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope()) == null &&
                 SymbolTableManager.searchVariableInLocalIterative(name, SymbolTableManager.getInstance().getActiveLocalScope().getParent()) == null) {
-            System.out.println("VAR NOT FOUND");
+            //System.out.println("VAR NOT FOUND");
 
-            System.out.println(ClypsValue.translateType(type));
+            //System.out.println(ClypsValue.translateType(type));
             if (ClypsValue.translateType(type) != ClypsValue.PrimitiveType.STRING) {
                 if (ClypsValue.translateType(type) == ClypsValue.PrimitiveType.BOOLEAN) {
-                    System.out.println("IS BOOLEAN");
+                    //System.out.println("IS BOOLEAN");
                     SymbolTableManager.getInstance().getActiveLocalScope().addEmptyVariableFromKeywords(type, name);
                 } else if (ClypsValue.translateType(type) != ClypsValue.PrimitiveType.BOOLEAN) {
-                    System.out.println("IS DECIMAL");
+                    //System.out.println("IS DECIMAL");
                     SymbolTableManager.getInstance().getActiveLocalScope().addEmptyVariableFromKeywords(type, name);
                 }
                 if (!ctx.variableModifier().isEmpty()) {
@@ -54,8 +54,8 @@ public class BlankVarCommand implements ICommand{
 
 
 
-        System.out.println("PRINT ALL VARS");
-        SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
-        System.out.println("PRINT ALL VARS");
+        //System.out.println("PRINT ALL VARS");
+        //SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
+        //System.out.println("PRINT ALL VARS");
     }
 }

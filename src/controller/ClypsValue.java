@@ -27,7 +27,7 @@ public class ClypsValue {
     public ClypsValue(Object value, PrimitiveType primitiveType){
 //
 //        PrimitiveType ty;
-//        System.out.println("Type: "+primitiveType.toLowerCase(Locale.ROOT));
+//        //System.out.println("Type: "+primitiveType.toLowerCase(Locale.ROOT));
 //        switch (primitiveType.toLowerCase(Locale.ROOT)){
 //            case "int":
 //                ty = PrimitiveType.INT;
@@ -51,17 +51,17 @@ public class ClypsValue {
 //                ty = PrimitiveType.NOT_YET_IDENTIFIED;
 //        }
 //        //|| TypeChecking.checkValueType(value,ty)
-        System.out.println(value);
-        System.out.println(primitiveType);
+        //System.out.println(value);
+        //System.out.println(primitiveType);
         if (value==null ||checkValueType(value,primitiveType)){
-            System.out.println("IN");
+            //System.out.println("IN");
             this.value = value;
             this.type = primitiveType;
             if ((this.type==PrimitiveType.INT||this.type==PrimitiveType.FLOAT||this.type==PrimitiveType.DOUBLE||this.type==PrimitiveType.BOOLEAN)&&value!=null)
                 tryEvaluate(value.toString());
 
         }else{
-            System.out.println("ERROR");
+            //System.out.println("ERROR");
             editor.addError("Type Mismatch");
         }
 
@@ -100,21 +100,21 @@ public class ClypsValue {
     }
 
     private void tryEvaluate(String value){
-        System.out.println(value);
-        System.out.println(this.getPrimitiveType());
+        //System.out.println(value);
+        //System.out.println(this.getPrimitiveType());
 
         if (this.getPrimitiveType()!=PrimitiveType.STRING&&this.getPrimitiveType()!=PrimitiveType.CHAR){
             try {
                 this.value = new Expression(value).eval().toPlainString();
             }catch (Expression.ExpressionException e){
-                System.out.println("EHEEEE?");
+                //System.out.println("EHEEEE?");
                 //editor.addCustomError("DUPLICATE FUNCTION DETECTED",0);
             }
         }else
             this.value=value;
 
 
-        System.out.println("EVAL: "+this.value);
+        //System.out.println("EVAL: "+this.value);
     }
 
     public static boolean checkValueType(Object value, PrimitiveType primitiveType) {
@@ -139,19 +139,19 @@ public class ClypsValue {
     }
 
     public static Object attemptTypeCast(String value, PrimitiveType primitiveType) {
-        System.out.println("Attempting");
-        System.out.println(value);
-        System.out.println(primitiveType);
+        //System.out.println("Attempting");
+        //System.out.println(value);
+        //System.out.println(primitiveType);
         switch (primitiveType) {
             case BOOLEAN:
-//                System.out.println("A - BOOLEAN");
-//                System.out.println(Boolean.valueOf(value));
+//                //System.out.println("A - BOOLEAN");
+//                //System.out.println(Boolean.valueOf(value));
                 return Boolean.valueOf(value);
             case CHAR:
                 return Character.valueOf(value.charAt(0));
             case INT:
-                //System.out.println("I - INTEGER");
-                //System.out.println(Integer.valueOf(value));
+                ////System.out.println("I - INTEGER");
+                ////System.out.println(Integer.valueOf(value));
                 try{
                     return Integer.valueOf(value);
                 }catch (NumberFormatException e){
@@ -159,8 +159,10 @@ public class ClypsValue {
                 }
             case FLOAT:
                 try{
+                    //System.out.println("yeah");
                     return Float.valueOf(value);
                 }catch (NumberFormatException e){
+                    //System.out.println("no");
                     return null;
                 }
             case DOUBLE:
@@ -178,8 +180,8 @@ public class ClypsValue {
 
     public static PrimitiveType translateType(String primitiveTypeString){
         PrimitiveType primitiveType = PrimitiveType.NOT_YET_IDENTIFIED;
-        System.out.println("ATTEMPT TRANSLATE");
-        System.out.println(primitiveTypeString);
+        //System.out.println("ATTEMPT TRANSLATE");
+        //System.out.println(primitiveTypeString);
 
         if(primitiveTypeString.toLowerCase(Locale.ROOT).contains(PrimitiveType.BOOLEAN.toString().toLowerCase(Locale.ROOT))) {
             primitiveType = PrimitiveType.BOOLEAN;
@@ -200,7 +202,7 @@ public class ClypsValue {
             primitiveType = PrimitiveType.STRING;
         }
 
-        System.out.println("TRANS "+primitiveType);
+        //System.out.println("TRANS "+primitiveType);
 
         return primitiveType;
     }

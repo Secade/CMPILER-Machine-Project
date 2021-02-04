@@ -86,12 +86,12 @@ public class ClypsFunction {
 
     public void addParameter(String identifierString, ClypsValue baracoValue) {
         this.parameters.put(identifierString, baracoValue);
-        System.out.println(this.methodName + " added an empty parameter " +identifierString+ " type " + baracoValue.getPrimitiveType());
+        //System.out.println(this.methodName + " added an empty parameter " +identifierString+ " type " + baracoValue.getPrimitiveType());
     }
 
     public ClypsValue getReturnValue() {
         if(this.functionType == FunctionType.VOID_TYPE) {
-            System.out.println(this.methodName + " is a void function. Null mobi value is returned");
+            //System.out.println(this.methodName + " is a void function. Null mobi value is returned");
             return null;
         }
         else {
@@ -111,15 +111,15 @@ public class ClypsFunction {
 
         ClypsValue baracoValue = this.getParameterAt(index);
         baracoValue.setValue(value);
-        System.out.println("TRYING TO ADD PARAM TO SCOP ----");
-        System.out.println(baracoValue.getPrimitiveType().toString());
-        System.out.println(this.getParametername(index));
-        System.out.println(value);
+        //System.out.println("TRYING TO ADD PARAM TO SCOP ----");
+        //System.out.println(baracoValue.getPrimitiveType().toString());
+        //System.out.println(this.getParametername(index));
+        //System.out.println(value);
         SymbolTableManager.getInstance().getActiveLocalScope().addInitializedVariableFromKeywords(baracoValue.getPrimitiveType().toString(),this.getParametername(index),value);
         this.getParentScope().addInitializedVariableFromKeywords(baracoValue.getPrimitiveType().toString(),this.getParametername(index),value);
-        System.out.println("PRINT ALL VARS");
-        SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
-        System.out.println("PRINT ALL VARS");
+        //System.out.println("PRINT ALL VARS");
+        //SymbolTableManager.getInstance().getActiveLocalScope().printAllVars();
+        //System.out.println("PRINT ALL VARS");
 
     }
 
@@ -162,6 +162,25 @@ public class ClypsFunction {
         ExecutionManager.getInstance().openFunctionExecution(this);
 
         try {
+//            for (int i =0;i<this.commandList.size();i++){
+//                executionThread.tryExecution();
+//                this.commandList.get(i).execute();
+//
+//                if (this.commandList.get(i) instanceof ReturnCommand) {
+//                    break;
+//                } else if (this.commandList.get(i) instanceof IFCommand) {
+//                    if (((IFCommand) this.commandList.get(i)).isReturned()) {
+//                        ((IFCommand) this.commandList.get(i)).resetReturnFlag();
+//                        break;
+//                    }
+//                }
+//
+//                if (this.commandList.get(this.commandList.size()-1) instanceof ReturnCommand){
+//
+//                }else {
+//                    editor.addCustomError("MISSING RETURN PATH AT END OF FUNCTION", 7);
+//                }
+//            }
             for(ICommand command : this.commandList) {
                 executionThread.tryExecution();
                 command.execute();
@@ -191,7 +210,7 @@ public class ClypsFunction {
 
     public void printParams() {
         this.parameters.entrySet().forEach(entry -> {
-            System.out.println(entry.getKey() + " " + entry.getValue().getValue().toString()+" "+entry.getValue().getPrimitiveType().toString());
+            //System.out.println(entry.getKey() + " " + entry.getValue().getValue().toString()+" "+entry.getValue().getPrimitiveType().toString());
         });
     }
 
@@ -220,19 +239,19 @@ public class ClypsFunction {
     }
 
     public Object attemptFunctionTypeCast(String value, FunctionType functionType) {
-        System.out.println("Attempting F");
-        System.out.println(value);
-        System.out.println(functionType);
+        //System.out.println("Attempting F");
+        //System.out.println(value);
+        //System.out.println(functionType);
         switch (functionType) {
             case BOOL_TYPE:
-//                System.out.println("A - BOOLEAN");
-//                System.out.println(Boolean.valueOf(value));
+//                //System.out.println("A - BOOLEAN");
+//                //System.out.println(Boolean.valueOf(value));
                 return Boolean.valueOf(value);
             case CHAR_TYPE:
                 return Character.valueOf(value.charAt(0));
             case INT_TYPE:
-                //System.out.println("I - INTEGER");
-                //System.out.println(Integer.valueOf(value));
+                ////System.out.println("I - INTEGER");
+                ////System.out.println(Integer.valueOf(value));
                 try{
                     return Integer.valueOf(value);
                 }catch (NumberFormatException e){

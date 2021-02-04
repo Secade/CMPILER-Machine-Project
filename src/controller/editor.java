@@ -301,7 +301,7 @@ public class editor extends JFrame implements ActionListener {
                     }
                 }else {
                     //SymbolTableManager.reset();
-                    System.out.println("EXECUTING COMMANDS");
+                    //System.out.println("EXECUTING COMMANDS");
                     ExecutionManager.getInstance().executeAllActions();
                     build();
                 }
@@ -315,8 +315,21 @@ public class editor extends JFrame implements ActionListener {
         errors.add(error);
     }
 
+    static boolean checker = false;
+
     public static void addCustomError(String error, int line){
-        errors.add("Semantic Error on Line "+line+": "+error);
+//        boolean check = false;
+//        if (!checker){
+//                if (error.contains("MISSING RETURN PATH")){
+//                    check=true;
+//                    checker=true;
+//                    errors.add("Semantic Error on Line "+line+": "+error);
+//                }
+//        }
+//
+//        if (!error.contains("MISSING RETURN PATH"))
+//            if (!check)
+                errors.add("Semantic Error on Line "+line+": "+error);
     }
 
     public static void main(String args[])

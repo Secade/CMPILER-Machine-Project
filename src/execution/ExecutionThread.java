@@ -26,7 +26,7 @@ public class ExecutionThread extends Thread{
                 command.execute();
             }
         }catch (InterruptedException e){
-            System.out.println("Interrupted!");
+            //System.out.println("Interrupted!");
         }
     }
 
@@ -35,7 +35,7 @@ public class ExecutionThread extends Thread{
 
         try{
             while(execFlag == false){
-                System.out.println("Flag is false. Currently sleeping");
+                //System.out.println("Flag is false. Currently sleeping");
                 this.execGate.await();
             }
         } finally {

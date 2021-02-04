@@ -30,17 +30,17 @@ public class WhileCommand implements IControlledCommand{
     private boolean evaluate() {
         List<Integer> dummy = null;
         boolean check = new Expression(ClypsCustomVisitor.testingExpression(this.expr.conditionalExpression().getText(),dummy,expr.start.getLine())).isBoolean();
-        System.out.println("CHECK "+check);
+        //System.out.println("CHECK "+check);
         if (this.expr.conditionalExpression().getText().matches("true|false")){
             check=true;
         }
         if (check){
             String swi = new Expression(ClypsCustomVisitor.testingExpression(this.expr.conditionalExpression().getText(),dummy,expr.start.getLine())).eval().toPlainString();
             if (Integer.parseInt(swi)==1){
-                System.out.println("IS TRUE");
+                //System.out.println("IS TRUE");
                 isGo=true;
             }else {
-                System.out.println("IS FALSE");
+                //System.out.println("IS FALSE");
                 isGo=false;
             }
 
@@ -50,7 +50,7 @@ public class WhileCommand implements IControlledCommand{
                 return false;
             }
         }else {
-            System.out.println("NOT BOOLEAN");
+            //System.out.println("NOT BOOLEAN");
             return false;
         }
 
@@ -60,12 +60,12 @@ public class WhileCommand implements IControlledCommand{
 
     @Override
     public void execute() {
-        //System.out.println("EXECUTING FOR COMMAND");
+        ////System.out.println("EXECUTING FOR COMMAND");
         while (evaluate()){
-            //System.out.println("LOOP: "+this.counter);
+            ////System.out.println("LOOP: "+this.counter);
             for(ICommand command:blockCommands){
-                //System.out.println("RUN COMMAND");
-                //System.out.println(command.toString());
+                ////System.out.println("RUN COMMAND");
+                ////System.out.println(command.toString());
                 command.execute();
             }
 

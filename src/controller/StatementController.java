@@ -69,7 +69,7 @@ public class StatementController {
                 conditionalCommand.addPositiveCommand(command);
             }
             else {
-                System.out.println("Negative command was added");
+                //System.out.println("Negative command was added");
                 conditionalCommand.addNegativeCommand(command);
             }
 
@@ -82,7 +82,7 @@ public class StatementController {
             IControlledCommand controlledCommand = (IControlledCommand) this.activeControlledCommand;
             controlledCommand.addCommand(command);
 
-            System.out.println("Adding to " +controlledCommand.getControlType());
+            //System.out.println("Adding to " +controlledCommand.getControlType());
 
             this.procedureCallStack.push(command);
             this.activeControlledCommand = command;
@@ -118,7 +118,7 @@ public class StatementController {
                     if(isInPositiveRule())
                         controlledCommand.addPositiveCommand(childCommand);
                     else{
-                        System.out.println("ADDING A NEGATIVE");
+                        //System.out.println("ADDING A NEGATIVE");
                         controlledCommand.addNegativeCommand(childCommand);
                     }
 

@@ -30,12 +30,11 @@ public class IFCommand implements ICommand, IConditionalCommand {
 
         try {
             if (ConditionEval.evaluateCondition(this.condExp)) {
-                System.out.println("IF COMMAND RECEIVE TRUE");
+                //System.out.println("IF COMMAND RECEIVE TRUE");
                 for (ICommand command : this.posCommands) {
                     //executionMonitor.tryExecution()
                     command.execute();
 
-                    /*** To be implemented ***/
 //                    LocalVarTracker.getInstance().populateLocalVars(command);
 //
 //                    if (command instanceof ReturnCommand) {
@@ -47,7 +46,7 @@ public class IFCommand implements ICommand, IConditionalCommand {
 //                        break;
                 }
             } else {
-                System.out.println("IF COMMAND RECEIVE FALSE");
+                //System.out.println("IF COMMAND RECEIVE FALSE");
                 for (ICommand command : this.negCommands) {
                     //executionMonitor.tryExecution()
                     command.execute();
@@ -66,7 +65,7 @@ public class IFCommand implements ICommand, IConditionalCommand {
             }
             //to be changed to InterruptedException
         }catch(Exception exception){
-            System.out.println("Oops... Something happened. " + exception.getMessage());
+            //System.out.println("Oops... Something happened. " + exception.getMessage());
 
         }
     }
@@ -82,13 +81,13 @@ public class IFCommand implements ICommand, IConditionalCommand {
     }
 
     public void addPositiveCommand(ICommand command){
-        System.out.println("ADDED POSITIVE COMMANDS");
+        //System.out.println("ADDED POSITIVE COMMANDS");
         this.posCommands.add(command);
 
     }
 
     public void addNegativeCommand(ICommand command){
-        System.out.println("ADDED NEGATIVE COMMAND");
+        //System.out.println("ADDED NEGATIVE COMMAND");
         this.negCommands.add(command);
     }
 

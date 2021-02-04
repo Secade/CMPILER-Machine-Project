@@ -45,9 +45,9 @@ public class ClypsArray {
 
     public void updateValueAt(ClypsValue value, int index) {
         if(index >= this.valueArray.length || index <= -1) {
-            //System.out.println("ERROR: " + String.format(ErrorRepository.getErrorMessage(ErrorRepository.RUNTIME_ARRAY_OUT_OF_BOUNDS), this.arrayIdentifier));
+            ////System.out.println("ERROR: " + String.format(ErrorRepository.getErrorMessage(ErrorRepository.RUNTIME_ARRAY_OUT_OF_BOUNDS), this.arrayIdentifier));
             //ExecutionManager.getInstance().setCurrentCatchType(IAttemptCommand.CatchTypeEnum.ARRAY_OUT_OF_BOUNDS);
-            System.out.println("ARRAY OUT OF BOUNDS");
+            //System.out.println("ARRAY OUT OF BOUNDS");
             return;
         }
         this.valueArray[index] = value;
@@ -55,7 +55,7 @@ public class ClypsArray {
 
     public ClypsValue getValueAt(int index) {
         if(index >= this.valueArray.length || index <= -1) {
-//            System.out.println("ERROR: " + String.format(ErrorRepository.getErrorMessage(ErrorRepository.RUNTIME_ARRAY_OUT_OF_BOUNDS), this.arrayIdentifier));
+//            //System.out.println("ERROR: " + String.format(ErrorRepository.getErrorMessage(ErrorRepository.RUNTIME_ARRAY_OUT_OF_BOUNDS), this.arrayIdentifier));
             //ExecutionManager.getInstance().setCurrentCatchType(IAttemptCommand.CatchTypeEnum.ARRAY_OUT_OF_BOUNDS);
 
             return null;

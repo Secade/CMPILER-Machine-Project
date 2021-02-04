@@ -87,14 +87,14 @@ public class Scope {
             this.localVariables.get(identifierString).setValue(valueString);
         }
     }
-    
+
     public void addEmptyVariableFromKeywords(String primitiveTypeString, String identifierString) {
         ClypsValue.PrimitiveType type=ClypsValue.translateType(primitiveTypeString);
         ClypsValue clypsValue = ClypsValue.createEmptyVariableFromKeywords(primitiveTypeString);
         clypsValue.setType(type);
         this.localVariables.put(identifierString, clypsValue);
     }
-    
+
     public void addInitializedVariableFromKeywords(String primitiveTypeString, String identifierString, String valueString) {
         ClypsValue.PrimitiveType type=ClypsValue.translateType(primitiveTypeString);
         this.addEmptyVariableFromKeywords(primitiveTypeString, identifierString);
@@ -122,61 +122,61 @@ public class Scope {
         this.localVariables.put(identifier, clypsValue);
     }
 
-    public void printAllVars() {
-        if (parentScope!=null){
-            parentScope.localVariables.entrySet().forEach(entry -> {
-                if (entry.getValue().isFinal())
-                    System.out.println(entry.getKey() + " " + entry.getValue().getValue() + " " + entry.getValue().getPrimitiveType()+" FINAL");
-                else
-                    System.out.println(entry.getKey() + " " + entry.getValue().getValue() + " " + entry.getValue().getPrimitiveType());
-            });
-        }
-
-        this.localVariables.entrySet().forEach(entry -> {
-            if (entry.getValue().isFinal())
-                System.out.println(entry.getKey() + " " + entry.getValue().getValue() + " " + entry.getValue().getPrimitiveType()+" FINAL");
-            else
-                System.out.println(entry.getKey() + " " + entry.getValue().getValue() + " " + entry.getValue().getPrimitiveType());
-        });
-    }
-
-    public void printAllArrays() {
-        if (parentScope!=null){
-            parentScope.localArrays.entrySet().forEach(entry -> {
-                if (entry.getValue().isFinal())
-                    System.out.println(entry.getKey() + " " + entry.getValue().getSize() + " " + entry.getValue().getPrimitiveType()+" FINAL");
-                else
-                    System.out.println(entry.getKey() + " " + entry.getValue().getSize() + " " + entry.getValue().getPrimitiveType());
-            });
-        }
-
-        this.localArrays.entrySet().forEach(entry -> {
-            if (entry.getValue().isFinal())
-                System.out.println(entry.getKey() + " " + entry.getValue().getSize() + " " + entry.getValue().getPrimitiveType()+" FINAL");
-            else
-                System.out.println(entry.getKey() + " " + entry.getValue().getSize() + " " + entry.getValue().getPrimitiveType());
-        });
-    }
-
-    public void printArrayValues(){
-        if (parentScope!=null){
-            parentScope.localArrays.entrySet().forEach(entry -> {
-                for (int i = 0;i<entry.getValue().getSize();i++){
-                    System.out.println(entry.getKey() + " " +entry.getValue().getValueAt(i).getValue().toString());
-                }
-
-            });
-        }
-
-        this.localArrays.entrySet().forEach(entry -> {
-            for (int i = 0;i<entry.getValue().getSize();i++){
-                if (entry.getValue().getValueAt(i)!=null)
-                    System.out.println(entry.getKey() + " " +entry.getValue().getValueAt(i).getValue());
-                else
-                    System.out.println(entry.getKey() + " " +entry.getValue().getValueAt(i));
-            }
-        });
-    }
+//    public void printAllVars() {
+//        if (parentScope!=null){
+//            parentScope.localVariables.entrySet().forEach(entry -> {
+//                if (entry.getValue().isFinal())
+//                    System.out.println(entry.getKey() + " " + entry.getValue().getValue() + " " + entry.getValue().getPrimitiveType()+" FINAL");
+//                else
+//                    System.out.println(entry.getKey() + " " + entry.getValue().getValue() + " " + entry.getValue().getPrimitiveType());
+//            });
+//        }
+//
+//        this.localVariables.entrySet().forEach(entry -> {
+//            if (entry.getValue().isFinal())
+//                System.out.println(entry.getKey() + " " + entry.getValue().getValue() + " " + entry.getValue().getPrimitiveType()+" FINAL");
+//            else
+//                System.out.println(entry.getKey() + " " + entry.getValue().getValue() + " " + entry.getValue().getPrimitiveType());
+//        });
+//    }
+//
+//    public void printAllArrays() {
+//        if (parentScope!=null){
+//            parentScope.localArrays.entrySet().forEach(entry -> {
+//                if (entry.getValue().isFinal())
+//                    System.out.println(entry.getKey() + " " + entry.getValue().getSize() + " " + entry.getValue().getPrimitiveType()+" FINAL");
+//                else
+//                    System.out.println(entry.getKey() + " " + entry.getValue().getSize() + " " + entry.getValue().getPrimitiveType());
+//            });
+//        }
+//
+//        this.localArrays.entrySet().forEach(entry -> {
+//            if (entry.getValue().isFinal())
+//                System.out.println(entry.getKey() + " " + entry.getValue().getSize() + " " + entry.getValue().getPrimitiveType()+" FINAL");
+//            else
+//                System.out.println(entry.getKey() + " " + entry.getValue().getSize() + " " + entry.getValue().getPrimitiveType());
+//        });
+//    }
+//
+//    public void printArrayValues(){
+//        if (parentScope!=null){
+//            parentScope.localArrays.entrySet().forEach(entry -> {
+//                for (int i = 0;i<entry.getValue().getSize();i++){
+//                    System.out.println(entry.getKey() + " " +entry.getValue().getValueAt(i).getValue().toString());
+//                }
+//
+//            });
+//        }
+//
+//        this.localArrays.entrySet().forEach(entry -> {
+//            for (int i = 0;i<entry.getValue().getSize();i++){
+//                if (entry.getValue().getValueAt(i)!=null)
+//                    System.out.println(entry.getKey() + " " +entry.getValue().getValueAt(i).getValue());
+//                else
+//                    System.out.println(entry.getKey() + " " +entry.getValue().getValueAt(i));
+//            }
+//        });
+//    }
 
     public void reset(){
         this.localVariables.clear();

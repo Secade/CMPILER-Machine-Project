@@ -29,11 +29,11 @@ public class SymbolTableManager {
 
     public Scope openLocalScope() {
         if(SymbolTableManager.getInstance().activeScope == null) {
-            System.out.println("INIT PARENT SCOPE");
+            //System.out.println("INIT PARENT SCOPE");
             SymbolTableManager.getInstance().activeScope = new Scope();
         }
         else {
-            System.out.println("ADDING SCOPE CHILD");
+            //System.out.println("ADDING SCOPE CHILD");
             Scope childLocalScope = new Scope();
             childLocalScope.setParent(SymbolTableManager.getInstance().activeScope);
             SymbolTableManager.getInstance().activeScope.addChild(childLocalScope);
@@ -128,10 +128,10 @@ public class SymbolTableManager {
         return functionMap;
     }
 
-    public void printAllFunctions() {
-        functionMap.entrySet().forEach(entry -> {
-            System.out.println(entry.getKey() + " " + entry.getValue().toString());
-        });
-    }
+//    public void printAllFunctions() {
+//        functionMap.entrySet().forEach(entry -> {
+//            System.out.println(entry.getKey() + " " + entry.getValue().toString());
+//        });
+//    }
 
 }
